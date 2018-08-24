@@ -282,6 +282,55 @@ public class PDFFacturaV33 {
 		this.construirTablaPagare(comprobante);
 	}
 
+	private void construirBocetoCot(Comprobante comprobante, Imagen imagen, Estatus estatus, TimbreFiscalDigital tfd,
+			String comentarios, DatosExtra datosExtra) throws MalformedURLException, DocumentException, IOException {
+		this.construirEncabezado(comprobante, imagen);
+		this.construirInfoReceptorYLugarFecha(comprobante, estatus, tfd);
+		this.construirUsoCFDIYDatosFiscales(comprobante, estatus, tfd);
+
+		ComercioExterior complementoComExt = Util.obtenerComplComercioExterior(comprobante);
+		if (datosExtra == null) {
+			datosExtra = new FacturaVTT().getDatosExtra();
+		}
+		if (this.descripcionTipoCFDI.compareTo("Pago") != 0) {
+			if(comprobante.getCfdiRelacionados()!=null){
+				this.crearTablaDoctoRelacionado(comprobante);
+			}
+			this.construirComplementoComercioExterior(comprobante, complementoComExt, datosExtra);
+			List<com.tikal.cacao.sat.cfd33.Comprobante.Impuestos.Traslados.Traslado> traslados = comprobante
+					.getImpuestos().getTraslados().getTraslado();
+			BigDecimal tasaOCuota = null;
+			for (com.tikal.cacao.sat.cfd33.Comprobante.Impuestos.Traslados.Traslado traslado : traslados) {
+				if (traslado.getImpuesto().getValor().contentEquals("002")) {
+					tasaOCuota = traslado.getTasaOCuota();
+				}
+			}
+
+			this.construirTablaIVA(tasaOCuota.doubleValue());
+			this.construirTablaConceptos(comprobante);
+			this.construirComentariosEImporteConLetra(comprobante, comentarios, datosExtra.getImporteichon());
+			
+			this.construirLeyendaFiscalYTotal(comprobante, estatus);
+		} else {
+
+			this.construirTablaConceptosPago(comprobante);
+			this.construirComplementoPago(comprobante);
+//			this.construirComentariosEImporteConLetra(comprobante, comentarios, datosExtra.getImporteichon());
+			Complemento complemento= comprobante.getComplemento().get(0);
+			List<Object> lista=complemento.getAny();
+			Pago pago=null;
+			for(Object element: lista){
+				if(element instanceof Pagos){
+					Pagos pagos= (Pagos)element;
+					pago= pagos.getPago().get(0);
+				}
+			}
+			this.construirTablaDocumentosRelacionados(comprobante, pago);
+		}
+		this.construirTablaPagare(comprobante);
+	}
+
+	
 	private void construirTimbre(String selloDigital, byte[] bytesQRCode, TimbreFiscalDigital tfd)
 			throws DocumentException, MalformedURLException, IOException {
 		// QRCode Y SELLOS DIGITALES
@@ -518,7 +567,7 @@ public class PDFFacturaV33 {
 			if(comprobante.getTipoDeComprobante().getValor().compareToIgnoreCase("E")==0){
 				agregarCeldaSinBorde("Nota de Cr�dito", fontHeadFactura, subTablaEncabezado, true);	
 			}else{
-				agregarCeldaSinBorde("FACTURA", fontHeadFactura, subTablaEncabezado, true);
+				agregarCeldaSinBorde("No. Orden", fontHeadFactura, subTablaEncabezado, true);
 			}
 		}else{
 			agregarCeldaSinBorde("Complemento de Pago", fontHeadFactura, subTablaEncabezado, true);
@@ -1206,13 +1255,29 @@ public class PDFFacturaV33 {
 		
 		PdfPTable tablaPagare = new PdfPTable(2);
 		tablaPagare.setWidthPercentage(100);
-		agregarCeldaConFondo("Pagaré", fontHead, tablaPagare, false);
-		  Paragraph p7 = new Paragraph("DEBO(EMOS) Y PAGARE(MOS) INCONDICIONALMENTE EN ESTA CIUDAD DE LEÓN, GTO. A LA ORDEN DE TECNO SUPPORT LEÓN S.A. DE C.V. LA CANTIDAD DE (",fontLeyendaFiscal);
+	//	agregarCeldaConFondo("Pagaré", fontHead, tablaPagare, false);
+		  Paragraph p7 = new Paragraph("DEBO(EMOS) Y PAGARE(MOS) INCONDICIONALMENTE EN ESTA CIUDAD DE LEÓN, GTO. A LA ORDEN DE TECNO SUPPORT LEÓN S.A. DE C.V. LA CANTIDAD DE ( $"+
+				  comprobante.getTotal()+"  M.N.) POR EL IMPORTE RECIBIDO EN MERCANCÍAS, RECIBIDAS A MI(NUESTRA) ENTERA SATISFACCIÓN. ESTE PAGARÉ ES MERCANTIL Y ESTÁ REGIDO POR LA LEY GENERAL"
+				  +" DE TÍTULOS Y OPERACIONES DE CRÉDITO EN SU ARTÍCULO 173 PARTE FINAL Y DEMAS ARTS. CORRELATIVOS POR NO SER PAGARÉ DOMICILIADO. SI NO ES PAGDO A SU VENCIMIENTO , CAUSARÁ EL "
+				  +"2.5% MENSUAL DE INTERESES MORATORIOS, SIN QUE POR ESTO SE CONSIDEREPRORROGADO EL PLAZO.",fontLeyendaFiscal);
           PdfPCell c7 = new PdfPCell(p7);
           c7.setHorizontalAlignment(Element.ALIGN_LEFT);
           c7.setColspan(2);
           tablaPagare.addCell(c7);
 		tablaPagare.setSpacingAfter(5);
+		
+		Paragraph p8 = new Paragraph("RECIBE:\n",fontLeyendaFiscal);
+        PdfPCell c8 = new PdfPCell(p8);
+        c8.setHorizontalAlignment(Element.ALIGN_LEFT);
+        c8.setColspan(1);
+        tablaPagare.addCell(c8);
+        
+        Paragraph p9 = new Paragraph("FIRMA DE CONFORMIDAD:\n",fontLeyendaFiscal);
+        PdfPCell c9 = new PdfPCell(p9);
+        c9.setHorizontalAlignment(Element.ALIGN_LEFT);
+        c9.setColspan(1);
+        tablaPagare.addCell(c9);
+		
 		document.add(tablaPagare);
 		
 		

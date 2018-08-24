@@ -53,9 +53,24 @@ public class FacturaVTT {
 	private Estatus estatus;
 	
 	private DatosExtra datosExtra;
+	
+	private String noOrden;
+	
+	
 
 	public FacturaVTT() { }
 	
+	
+	public String getNoOrden() {
+		return noOrden;
+	}
+
+
+	public void setNoOrden(String noOrden) {
+		this.noOrden = noOrden;
+	}
+
+
 	public FacturaVTT(String uuid, String cfdi, String rfcEmisor,
 			String nombreReceptor, Date fecha, String sello, byte[] codigoQR) {
 		
@@ -396,5 +411,6 @@ public class FacturaVTT {
 		
 		
 	}
+	
 	
 }
