@@ -61,6 +61,8 @@ import com.tikal.cacao.sat.cfd.ObjectFactoryComprobante;
 import com.tikal.cacao.sat.cfd.TUbicacion;
 import com.tikal.cacao.sat.cfd.TUbicacionFiscal;
 import com.tikal.cacao.sat.timbrefiscaldigital.TimbreFiscalDigital;
+import com.tikal.cacao.service.FacturaVTTService;
+import com.tikal.cacao.springController.viewObjects.Comprobante33VO;
 import com.tikal.cacao.springController.viewObjects.ComprobanteConComentarioVO;
 import com.tikal.cacao.springController.viewObjects.ComprobanteVO;
 import com.tikal.cacao.util.AsignadorDeCharset;
@@ -113,6 +115,9 @@ public class FacturaController {
 	
 	@Autowired
 	private DatosDAO datosdao;
+	
+	@Autowired
+	private FacturaVTTService facturaVTTService;
 	
 	@PostConstruct
 	public void init() {
@@ -204,7 +209,7 @@ public class FacturaController {
 		
 		Comprobante cfdi= Util.unmarshallXML(factura.getCfdiXML());
 		Imagen imagen = imagenDAO.get(cfdi.getEmisor().getRfc());
-		String evento = "Se envió  la factura con id: " +factura.getUuid()+" al correo: "+email;
+		String evento = "Se enviï¿½  la factura con id: " +factura.getUuid()+" al correo: "+email;
 		RegistroBitacora registroBitacora = Util.crearRegistroBitacora(req.getSession(), "Operacional", evento);
 		bitacoradao.addReg(registroBitacora);
 		mailero.enviaFactura(email, factura, "", cfdi.getComplemento().getAny().get(0).toString(),
@@ -266,7 +271,7 @@ public class FacturaController {
 			factura.setComentarios(compConComent.getComentarios());
 			facturaDAO.guardar(factura);
 			crearReporteRenglon(factura);
-			writer.println("¡La factura se generó con éxito!"); 
+			writer.println("ï¿½La factura se generï¿½ con ï¿½xito!"); 
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -276,37 +281,107 @@ public class FacturaController {
 	
 	@RequestMapping(value = "/actualizar/{uuid}", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
 	public void actualizar(HttpServletRequest req, HttpServletResponse res, @RequestBody String json,@PathVariable String uuid) {
+		System.out.println("Yisus actualiza facturacontroller::"+json);
 		try {
 			AsignadorDeCharset.asignar(req, res);
 			PrintWriter writer = res.getWriter();
-			
-			ComprobanteConComentarioVO compConComent = (ComprobanteConComentarioVO) JsonConvertidor.fromJson(json, ComprobanteConComentarioVO.class);
-			Comprobante c = compConComent.getComprobante();
-			
-			ImpuestosLocales impuestosLocales = compConComent.getImpuestosLocales();
-			if (impuestosLocales != null) {
-				ObjectFactoryComprobante of = new ObjectFactoryComprobante();
-				c.setComplemento(of.createComprobanteComplemento());
-				this.convertirImpuestosLocales(impuestosLocales);
-				c.getComplemento().getAny().add(impuestosLocales);
-			}
-			
-			//Comprobante c = (Comprobante) JsonConvertidor.fromJson(json, Comprobante.class);
-			//incrementarFolio(c.getEmisor().getRfc(), c.getSerie());
-			String cadenaComprobante = Util.marshallComprobante(c,false);
-			
-			Factura factura = new Factura(uuid, cadenaComprobante, c.getEmisor().getRfc(), c.getReceptor().getNombre(),
-					c.getFecha().toGregorianCalendar().getTime(), null, null);
-			factura.setComentarios(compConComent.getComentarios());
-			facturaDAO.guardar(factura);
-			crearReporteRenglon(factura);
-			writer.println("¡La factura se generó con éxito!"); 
+			//if (ServicioSesion.verificarPermiso(req, usuarioDAO, perfilDAO, 11)) {
+				Comprobante33VO comprobanteNew = 
+						(Comprobante33VO) JsonConvertidor.fromJson(json, Comprobante33VO.class);
+				com.tikal.cacao.sat.cfd33.Comprobante c= comprobanteNew.getComprobante();
+				System.out.println("numero de orden editada:"+comprobanteNew.getNoOrden());
+				String resultado = facturaVTTService.actualizar33(comprobanteNew, uuid, req.getSession());
+				
+				String cadenaComprobante = Util.marshallComprobante33(c,false);
+				
+				Factura factura = new Factura(Util.randomString(10), cadenaComprobante, c.getEmisor().getRfc(), c.getReceptor().getNombre(),
+						c.getFecha().toGregorianCalendar().getTime(), null, null);
+				factura.setComentarios(comprobanteNew.getComentarios());
+				facturaDAO.guardar(factura);
+				crearReporteRenglon(factura);
+				
+				res.getWriter().println(resultado);
+//			} else {
+//				res.sendError(403);
+//			}
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+	////////////////////////////////////////////////////////////////////////
+//		try {
+//			AsignadorDeCharset.asignar(req, res);
+//			PrintWriter writer = res.getWriter();
+//			
+//			ComprobanteConComentarioVO compConComent = (ComprobanteConComentarioVO) JsonConvertidor.fromJson(json, ComprobanteConComentarioVO.class);
+//			//Comprobante33VO comp33=(Comprobante33VO) JsonConvertidor.fromJson(json, Comprobante33VO.class);
+//			Comprobante c = compConComent.getComprobante();
+//			
+//			ImpuestosLocales impuestosLocales = compConComent.getImpuestosLocales();
+//			if (impuestosLocales != null) {
+//				ObjectFactoryComprobante of = new ObjectFactoryComprobante();
+//				c.setComplemento(of.createComprobanteComplemento());
+//				this.convertirImpuestosLocales(impuestosLocales);
+//				c.getComplemento().getAny().add(impuestosLocales);
+//			}
+//			
+//			//Comprobante c = (Comprobante) JsonConvertidor.fromJson(json, Comprobante.class);
+//			//incrementarFolio(c.getEmisor().getRfc(), c.getSerie());
+//			String cadenaComprobante = Util.marshallComprobante(c,false);
+//			
+//			Factura factura = new Factura(uuid, cadenaComprobante, c.getEmisor().getRfc(), c.getReceptor().getNombre(),
+//					c.getFecha().toGregorianCalendar().getTime(), null, null);
+//			factura.setComentarios(compConComent.getComentarios());
+//			facturaDAO.guardar(factura);
+//			crearReporteRenglon(factura);
+//			writer.println("Â¡La factura se generÃ³ con Ã©xito!"); 
+//		} catch (UnsupportedEncodingException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
+//	
+	
+	
+//	@RequestMapping(value = "/actualizar/{uuid}", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+//	public void actualizar(HttpServletRequest req, HttpServletResponse res, @RequestBody String json,@PathVariable String uuid) {
+//		System.out.println("Yisus actualiza facturacontroller::"+json);
+//		try {
+//			AsignadorDeCharset.asignar(req, res);
+//			PrintWriter writer = res.getWriter();
+//			
+//			//ComprobanteConComentarioVO compConComent = (ComprobanteConComentarioVO) JsonConvertidor.fromJson(json, ComprobanteConComentarioVO.class);
+//			Comprobante33VO comp33=(Comprobante33VO) JsonConvertidor.fromJson(json, Comprobante33VO.class);
+//			com.tikal.cacao.sat.cfd33.Comprobante c = comp33.getComprobante();
+//			
+//			ImpuestosLocales impuestosLocales = comp33.getImpuestosLocales();
+//			if (impuestosLocales != null) {
+//				ObjectFactoryComprobante of = new ObjectFactoryComprobante();
+//				//c.setComplemento(of.createComprobanteComplemento());
+//				this.convertirImpuestosLocales(impuestosLocales);
+//			//	c.getComplemento().getAny().add(impuestosLocales);
+//			}
+//			
+//			//Comprobante c = (Comprobante) JsonConvertidor.fromJson(json, Comprobante.class);
+//			//incrementarFolio(c.getEmisor().getRfc(), c.getSerie());
+//			String cadenaComprobante = Util.marshallComprobante33(c,false);
+//			
+//			Factura factura = new Factura(uuid, cadenaComprobante, c.getEmisor().getRfc(), c.getReceptor().getNombre(),
+//					c.getFecha().toGregorianCalendar().getTime(), null, null);
+//			factura.setComentarios(comp33.getComentarios());
+//			facturaDAO.guardar(factura);
+//			crearReporteRenglon(factura);
+//			writer.println("Â¡La factura se generÃ³ con Ã©xito!"); 
+//		} catch (UnsupportedEncodingException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
+//	
 	
 	@RequestMapping(value = "/timbrar/{uuid}", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
 	public void validarUuid(HttpServletRequest req, HttpServletResponse res, @RequestBody String json, @PathVariable String uuid) throws IOException {
@@ -363,11 +438,11 @@ public class FacturaController {
 				emisorDAO.crear(emisor);*/
 				facturaDAO.eliminar(uuid);
 				repRenglonDAO.eliminar(uuid);
-				writer.println("¡La factura se timbró con éxito!"); 
+				writer.println("ï¿½La factura se timbrï¿½ con ï¿½xito!"); 
 			}
 			else {
-				writer.println("Excepción en caso de error: " + respuesta.get(0));
-				writer.println("Código de error: " + respuesta.get(1));
+				writer.println("Excepciï¿½n en caso de error: " + respuesta.get(0));
+				writer.println("Cï¿½digo de error: " + respuesta.get(1));
 				writer.println("Mensaje de respuesta: " + respuesta.get(2));
 			}
 			
@@ -421,13 +496,13 @@ public class FacturaController {
 				try{
 					mailero.enviaFactura(cVO.getEmail(), factura, "", cfdi.getComplemento().getAny().get(0).toString(), imagen);
 				}catch(Exception e){
-					writer.println("¡La factura se timbró con éxito!, ocurrió un error al enviar a "+ cVO.getEmail());
+					writer.println("ï¿½La factura se timbrï¿½ con ï¿½xito!, ocurriï¿½ un error al enviar a "+ cVO.getEmail());
 				}
-				writer.println("¡La factura se timbró con éxito!"); 
+				writer.println("ï¿½La factura se timbrï¿½ con ï¿½xito!"); 
 			}
 			else {
-				writer.println("Excepción en caso de error: " + respuesta.get(0));
-				writer.println("Código de error: " + respuesta.get(1));
+				writer.println("Excepciï¿½n en caso de error: " + respuesta.get(0));
+				writer.println("Cï¿½digo de error: " + respuesta.get(1));
 				writer.println("Mensaje de respuesta: " + respuesta.get(2));
 			}
 			
@@ -495,11 +570,11 @@ public class FacturaController {
 				emisorDAO.crear(emisor);*/
 				incrementarFolio(cfdi.getEmisor().getRfc(), cfdi.getSerie());
 				mailero.enviaFactura(uuidYEmail[1], factura, "", cfdi.getComplemento().getAny().get(0).toString(), imagen);
-				writer.println("¡La factura se timbró con éxito!"); 
+				writer.println("ï¿½La factura se timbrï¿½ con ï¿½xito!"); 
 			}
 			else {
-				writer.println("Excepción en caso de error: " + respuesta.get(0));
-				writer.println("Código de error: " + respuesta.get(1));
+				writer.println("Excepciï¿½n en caso de error: " + respuesta.get(0));
+				writer.println("Cï¿½digo de error: " + respuesta.get(1));
 				writer.println("Mensaje de respuesta: " + respuesta.get(2));
 			}
 			
@@ -591,8 +666,8 @@ public class FacturaController {
 		try {
 			PrintWriter writer = res.getWriter();
 			List<Object> respuesta = timbraCFDIResponse.getTimbraCFDIResult().getAnyType();
-			writer.println("Excepción en caso de error: " + respuesta.get(0));
-			writer.println("Código de error: " + respuesta.get(1));
+			writer.println("Excepciï¿½n en caso de error: " + respuesta.get(0));
+			writer.println("Cï¿½digo de error: " + respuesta.get(1));
 			writer.println("Mensaje de respuesta: " + respuesta.get(2));
 			writer.println("XML certificado o timbrado: " + respuesta.get(3)); //TODO descargar el archivo xml
 			writer.println("QRCode: " + respuesta.get(4)); //TODO transformar el arreglo de bytes para obtener la imagen del QRCode
@@ -729,7 +804,7 @@ public class FacturaController {
 			try {
 				AsignadorDeCharset.asignar(req, res);
 				PrintWriter writer = res.getWriter();
-				writer.println("El Número de Folio Fiscal (UUID): ".concat(uuid).concat(" no pertenece a ninguna factura"));
+				writer.println("El Nï¿½mero de Folio Fiscal (UUID): ".concat(uuid).concat(" no pertenece a ninguna factura"));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -790,8 +865,8 @@ public class FacturaController {
 				}
 				
 				else {
-					writer.println("Excepción en caso de error: " + resultado.get(0));
-					writer.println("Código de error: " + resultado.get(1));
+					writer.println("Excepciï¿½n en caso de error: " + resultado.get(0));
+					writer.println("Cï¿½digo de error: " + resultado.get(1));
 					writer.println("Mensaje de respuesta: " + resultado.get(2));
 				}
 			}
@@ -801,7 +876,7 @@ public class FacturaController {
 		
 	}
 	
-	// Si se usa agregar los parámetros del rfc
+	// Si se usa agregar los parï¿½metros del rfc
 	/*@RequestMapping(value = "/wsObtenerPDF/{uuid}", method = RequestMethod.GET,produces="application/pdf")
 	public void obtenerPDF(HttpServletRequest req, HttpServletResponse res, @PathVariable String uuid) {
 		ObtieneCFDIResponse obtieneCFDIResponse = client.getObtieneCFDIResponse(uuid);
@@ -825,7 +900,7 @@ public class FacturaController {
 		} catch (SocketTimeoutException e) {
 			try {
 				PrintWriter writer = res.getWriter();
-				writer.println("El servicio de consulta de factura no responde. Por favor intenté de nuevo (presione F5)");
+				writer.println("El servicio de consulta de factura no responde. Por favor intentï¿½ de nuevo (presione F5)");
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			}
@@ -910,8 +985,9 @@ public class FacturaController {
 		res.getWriter().print(paginas);
 	}
 	
-	@RequestMapping(value = "/numPaginasRec/{rfc}/{receptor}", method = RequestMethod.GET, produces = "text/xml")
+	@RequestMapping(value = "/numPaginasRec/{rfc}/{receptor}", method = RequestMethod.GET, produces = "application/json")
 	public void numpagsRec(HttpServletRequest req, HttpServletResponse res, @PathVariable String rfc,@PathVariable String receptor) throws IOException {
+		System.out.println("ddddd");
 		int paginas = repRenglonDAO.pagsRec(rfc, receptor);
 		res.getWriter().print(paginas);
 	}
@@ -984,8 +1060,8 @@ public class FacturaController {
 	}
 	
 	private void escribirRespuesta(List<Object> respuesta, PrintWriter writer) {
-		writer.println("Excepción en caso de error: " + respuesta.get(0));
-		writer.println("Código de error: " + respuesta.get(1));
+		writer.println("Excepciï¿½n en caso de error: " + respuesta.get(0));
+		writer.println("Cï¿½digo de error: " + respuesta.get(1));
 		writer.println("Mensaje de respuesta: " + respuesta.get(2));
 		writer.println("XML certificado o timbrado: " + respuesta.get(3)); //TODO descargar el archivo xml
 		writer.println("QRCode: " + respuesta.get(4)); //TODO transformar el arreglo de bytes para obtener la imagen del QRCode
@@ -1012,7 +1088,7 @@ public class FacturaController {
 		Comprobante comprobante = ofComprobante.createComprobante();
 		
 		comprobante.setFecha(Util.getXMLDate(new Date(), FormatoFecha.COMPROBANTE));
-		comprobante.setLugarExpedicion("MÉXICO");
+		comprobante.setLugarExpedicion("Mï¿½XICO");
 		comprobante.setTipoDeComprobante("ingreso");
 		comprobante.setFormaDePago("CONTADO");
 		comprobante.setMetodoDePago("CONTADO");
@@ -1030,7 +1106,7 @@ public class FacturaController {
 		ubicacionFiscalEmisor.setColonia("MARTIN CARRERA");
 		ubicacionFiscalEmisor.setLocalidad("MEXICO, D.F.");
 		ubicacionFiscalEmisor.setMunicipio("GUSTAVO A. MADERO");
-		ubicacionFiscalEmisor.setEstado("Ciudad de México");
+		ubicacionFiscalEmisor.setEstado("Ciudad de Mï¿½xico");
 		ubicacionFiscalEmisor.setPais("MEXICO");
 		ubicacionFiscalEmisor.setCodigoPostal("07070");
 		emisor.setDomicilioFiscal(ubicacionFiscalEmisor);
@@ -1042,14 +1118,14 @@ public class FacturaController {
 		
 		Comprobante.Receptor receptor = ofComprobante.createComprobanteReceptor();
 		receptor.setRfc("RCU100301BB8");
-		receptor.setNombre("REPARACIÓN DE CAMIONES Y UNIDADES ACCIDENTADAS LA VILLA S.A. DE C.V.");
+		receptor.setNombre("REPARACIï¿½N DE CAMIONES Y UNIDADES ACCIDENTADAS LA VILLA S.A. DE C.V.");
 		
 		TUbicacion ubicacionReceptor = ofComprobante.createTUbicacion();
 		ubicacionReceptor.setCalle("FRANCISCO MORENO LOCAL A");
 		ubicacionReceptor.setColonia("LA VILLA DE GUADALUPE");
 		ubicacionReceptor.setMunicipio("GUSTAVO A. MADERO");
-		ubicacionReceptor.setEstado("Ciudad de México");
-		ubicacionReceptor.setPais("MÉXICO");
+		ubicacionReceptor.setEstado("Ciudad de Mï¿½xico");
+		ubicacionReceptor.setPais("Mï¿½XICO");
 		ubicacionReceptor.setCodigoPostal("CP. 07050");
 		receptor.setDomicilio(ubicacionReceptor);
 		comprobante.setReceptor(receptor);

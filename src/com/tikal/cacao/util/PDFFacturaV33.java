@@ -55,7 +55,7 @@ import mx.gob.sat.timbrefiscaldigital.TimbreFiscalDigital;
 public class PDFFacturaV33 {
 
 	
-	//final String condiciones = "DEBO(EMOS) Y PAGARE(MOS) INCONDICIONALMENTE EN ESTA CIUDAD DE LEÓN, GTO. A LA ORDEN DE TECNO SUPPORT LEÓN S.A. DE C.V. LA CANTIDAD DE ("
+	
 	private Document document;
 	private static String IVA = "IVA";
 	private static String IEPS = "IEPS";
@@ -71,7 +71,7 @@ public class PDFFacturaV33 {
 	private Font font3 = new Font(Font.FontFamily.HELVETICA, 8.5F, Font.NORMAL);
 	private Font fontSerieYFolio = new Font(Font.FontFamily.HELVETICA, 9.5F, Font.BOLD, BaseColor.RED);
 	private Font fontHeadFactura = new Font(Font.FontFamily.HELVETICA, 9.5F, Font.BOLD);
-
+	private Font fontCot = new Font(Font.FontFamily.HELVETICA, 9.5F, Font.BOLD, BaseColor.RED);
 	// private Font fontWhiteDecimals = new Font(Font.FontFamily.HELVETICA,
 	// 8.5F, Font.NORMAL, BaseColor.WHITE);
 
@@ -79,7 +79,7 @@ public class PDFFacturaV33 {
 	private Font fontHeadConceptos = new Font(Font.FontFamily.HELVETICA, 7.0F, Font.NORMAL);
 	private Font fontConceptos = new Font(Font.FontFamily.HELVETICA, 7.0F, Font.NORMAL);
 	private BaseColor rafypackColor;
-	// fontHead.setColor(BaseColor.WHITE);
+	// fontHead.setColor(BaseColor.WHITE);dfsf
 
 	private PdfPCell emptyCell = new PdfPCell();
 	private PdfPCell celdaEspacio = new PdfPCell();
@@ -285,7 +285,7 @@ public class PDFFacturaV33 {
 			}
 			this.construirTablaDocumentosRelacionados(comprobante, pago);
 		}
-		//this.construirTablaPagare(comprobante);
+		this.construirTablaPagare(comprobante);
 	}
 
 	
@@ -335,7 +335,7 @@ public class PDFFacturaV33 {
 			}
 			this.construirTablaDocumentosRelacionados(comprobante, pago);
 		}
-		this.construirTablaPagare(comprobante);
+		//this.construirTablaPagare(comprobante);
 	}
 
 	
@@ -531,8 +531,8 @@ public class PDFFacturaV33 {
 		if (imagen != null) {
 			imgLogo = Image.getInstance(new URL(imagen.getImage()));
 			imgLogo.setScaleToFitHeight(false);
-			imgLogo.scaleToFit(125F, 37.25F);
-			Chunk chunkLogo = new Chunk(imgLogo, 0, -25);
+			imgLogo.scaleToFit(100F, 65F);
+			Chunk chunkLogo = new Chunk(imgLogo, 0, -50);
 			celdaLogo.addElement(chunkLogo);
 		} // else {
 		// imgLogo = Image.getInstance("images/Logo-Tikal.png");
@@ -592,10 +592,24 @@ public class PDFFacturaV33 {
 
 	private void construirEncabezadoCot(Comprobante comprobante, Imagen imagen, String noOrden)
 			throws DocumentException, MalformedURLException, IOException {
+		
+		PdfPTable tabla = new PdfPTable(3);
+		tabla.setWidthPercentage(100);
+		 Paragraph bco = new Paragraph("COTIZACION",fontCot);
+	      PdfPCell cco = new PdfPCell(bco);
+	      cco.setHorizontalAlignment(Element.ALIGN_CENTER);
+	     // cco.setBackgroundColor(rafypackColor);
+	      cco.setColspan(3);cco.setRowspan(3);
+	      cco.setBorder(PdfPCell.NO_BORDER);
+	      tabla.addCell(cco);
+	      document.add(tabla);
+	      
 		PdfPTable tablaEncabezado = new PdfPTable(3);
 		tablaEncabezado.setWidthPercentage(100);
 		tablaEncabezado.setWidths(new float[] { 30, 40, 30 });
 
+		
+		
 		// ENCABEZADO DEL COMPROBANTE
 		PdfPTable subTablaLogo = new PdfPTable(1);
 		PdfPCell celdaLogo = new PdfPCell();
@@ -604,8 +618,8 @@ public class PDFFacturaV33 {
 		if (imagen != null) {
 			imgLogo = Image.getInstance(new URL(imagen.getImage()));
 			imgLogo.setScaleToFitHeight(false);
-			imgLogo.scaleToFit(125F, 37.25F);
-			Chunk chunkLogo = new Chunk(imgLogo, 0, -25);
+			imgLogo.scaleToFit(100F, 65F);
+			Chunk chunkLogo = new Chunk(imgLogo, 0, -50);
 			celdaLogo.addElement(chunkLogo);
 		} // else {
 		// imgLogo = Image.getInstance("images/Logo-Tikal.png");
@@ -620,6 +634,8 @@ public class PDFFacturaV33 {
 		celdaTablaLogo.setBorderColor(BaseColor.GRAY);
 		celdaTablaLogo.setBorderWidth(1);
 		tablaEncabezado.addCell(celdaTablaLogo);
+	
+		
 
 		PdfPCell celdaDatosEmisor = new PdfPCell();
 		Phrase fraseDatosEmisor = new Phrase();
@@ -648,13 +664,15 @@ public class PDFFacturaV33 {
 			if(comprobante.getTipoDeComprobante().getValor().compareToIgnoreCase("E")==0){
 				agregarCeldaSinBorde("Nota de Cr�dito", fontHeadFactura, subTablaEncabezado, true);	
 			}else{
-				agregarCeldaSinBorde("No. Orden", fontHeadFactura, subTablaEncabezado, true);
+				agregarCeldaSinBorde("Folio", fontHeadFactura, subTablaEncabezado, true);
 			}
 		}else{
 			agregarCeldaSinBorde("Complemento de Pago", fontHeadFactura, subTablaEncabezado, true);
 		}
-		subTablaEncabezado.addCell(celdaEspacio);
-		agregarCeldaSinBorde(noOrden, fontSerieYFolio, subTablaEncabezado, true);
+	//	subTablaEncabezado.addCell(celdaEspacio);
+		agregarCeldaSinBorde(getFolioYSerie(comprobante), fontSerieYFolio, subTablaEncabezado, true);
+		agregarCeldaSinBorde("No. Orden: "+noOrden, fontHeadFactura, subTablaEncabezado, true);
+		//agregarCeldaSinBorde(noOrden, fontSerieYFolio, subTablaEncabezado, true);
 		celdaSubTablaEncabezado.addElement(subTablaEncabezado);
 		celdaSubTablaEncabezado.setBorderColor(BaseColor.GRAY);
 		tablaEncabezado.addCell(celdaSubTablaEncabezado);
@@ -668,13 +686,13 @@ public class PDFFacturaV33 {
 		tablaReceptorYHoraCert.setWidthPercentage(100);
 		tablaReceptorYHoraCert.setWidths(new float[] { 35, 20, 45 });
 
-		agregarCeldaConFondo("Nombre o raz�n social del Cliente", fontHead, tablaReceptorYHoraCert, false);
+		agregarCeldaConFondo("Nombre o razón social del Cliente", fontHead, tablaReceptorYHoraCert, false);
 		agregarCeldaConFondo("R.F.C.", fontHead, tablaReceptorYHoraCert, false);
 		String etqLugarFechaHora = null;
 		if (estatus.equals(Estatus.GENERADO)) {
-			etqLugarFechaHora = "Lugar, fecha y hora de emisi�n";
+			etqLugarFechaHora = "Lugar, fecha y hora de emisión";
 		} else {
-			etqLugarFechaHora = "Lugar, fecha y hora de emisi�n / fecha y hora de certificaci�n";
+			etqLugarFechaHora = "Lugar, fecha y hora de emisión / fecha y hora de certificación";
 		}
 		agregarCeldaConFondo(etqLugarFechaHora, fontHead, tablaReceptorYHoraCert, false);
 
@@ -845,7 +863,7 @@ public class PDFFacturaV33 {
 					fraseDatosFiscales);
 		}
 
-		agregarChunkYNuevaLinea("R�gimen fiscal: ".concat(comprobante.getEmisor().getRegimenFiscal().getValor()) + " "
+		agregarChunkYNuevaLinea("Régimen fiscal: ".concat(comprobante.getEmisor().getRegimenFiscal().getValor()) + " "
 				+ this.descripcionRegimenFiscal, font3, fraseDatosFiscales);
 
 		PdfPCell celdaDatosFiscales = new PdfPCell();
@@ -892,7 +910,7 @@ public class PDFFacturaV33 {
 
 		agregarCeldaConFondo("Clave ProdServ", fontHeadConceptos, tablaConceptos, true);
 
-		agregarCeldaConFondo("No. Identificaci�n (Code)", fontHeadConceptos, tablaConceptos, true);
+		agregarCeldaConFondo("No. Identificación (Code)", fontHeadConceptos, tablaConceptos, true);
 
 		agregarCeldaConFondo("Cantidad (Quantity)", fontHeadConceptos, tablaConceptos, true);
 
@@ -900,9 +918,9 @@ public class PDFFacturaV33 {
 
 		agregarCeldaConFondo("Unidad (Unit)", fontHeadConceptos, tablaConceptos, true);
 
-		agregarCeldaConFondo("Fracci�n Arancelaria (Tarif Number)", fontHeadConceptos, tablaConceptos, true);
+		agregarCeldaConFondo("Fracción Arancelaria (Tarif Number)", fontHeadConceptos, tablaConceptos, true);
 
-		agregarCeldaConFondo("Descripci�n (Description)", fontHeadConceptos, tablaConceptos, true);
+		agregarCeldaConFondo("Descripción (Description)", fontHeadConceptos, tablaConceptos, true);
 
 		agregarCeldaConFondo("Valor unitario (Unit Price)", fontHeadConceptos, tablaConceptos, true);
 
@@ -969,7 +987,7 @@ public class PDFFacturaV33 {
 
 		agregarCeldaConFondo("Unidad", fontHeadConceptos, tablaConceptos, true);
 		
-		agregarCeldaConFondo("Descripci�n (Description)", fontHeadConceptos, tablaConceptos, true);
+		agregarCeldaConFondo("Descripción (Description)", fontHeadConceptos, tablaConceptos, true);
 
 		agregarCeldaConFondo("Valor unitario (Unit Price)", fontHeadConceptos, tablaConceptos, true);
 
@@ -1030,7 +1048,7 @@ public class PDFFacturaV33 {
 
 		agregarCeldaConFondo("Moneda DR", fontHeadConceptos, tablaConceptos, true);
 
-		agregarCeldaConFondo("M�todo de pago DR", fontHeadConceptos, tablaConceptos, true);
+		agregarCeldaConFondo("Método de pago DR", fontHeadConceptos, tablaConceptos, true);
 
 		agregarCeldaConFondo("Num. Parcialidad", fontHeadConceptos, tablaConceptos, true);
 
@@ -1083,7 +1101,7 @@ public class PDFFacturaV33 {
 	
 	private void construirClienteProveedor(Pago pago, PdfPTable tablaPago, Comprobante comprobante){
 		Phrase clienteproveedor = new Phrase();
-		 agregarChunkYNuevaLinea("Informaci�n Cliente - Proveedor: ",
+		 agregarChunkYNuevaLinea("Información Cliente - Proveedor: ",
 				 font2, clienteproveedor);
 		 agregarChunkYNuevaLinea("RFC cuenta ordenante: "+pago.getRfcEmisorCtaOrd(), font3, clienteproveedor);
 		 agregarChunkYNuevaLinea("RFC cuenta: "+pago.getRfcEmisorCtaBen(), font3, clienteproveedor);
@@ -1112,13 +1130,13 @@ public class PDFFacturaV33 {
 	
 	private void construirPago(Pago pago, PdfPTable tablaPago, Comprobante comprobante){
 		Phrase fraseDatosFiscales = new Phrase();
-		 agregarChunkYNuevaLinea("Informaci�n del dep�sito: ",
+		 agregarChunkYNuevaLinea("Información del depósito: ",
 		 font2, fraseDatosFiscales);
 		 agregarChunkYNuevaLinea("Fecha de pago: "+pago.getFechaPago().toString(), font3, fraseDatosFiscales);
 		 agregarChunkYNuevaLinea("Monto: "+ pago.getMonto(), font3, fraseDatosFiscales);
 		 agregarChunkYNuevaLinea("Forma de Pago: "+ pago.getFormaDePagoP().getValor()+" - " + this.descripcionFormaDePago, font3, fraseDatosFiscales);
 		agregarChunkYNuevaLinea(
-				"R�gimen fiscal: ".concat(comprobante.getEmisor().getRegimenFiscal().getValor())
+				"Régimen fiscal: ".concat(comprobante.getEmisor().getRegimenFiscal().getValor())
 				+ " " + this.descripcionRegimenFiscal, font3,
 				fraseDatosFiscales);
 
@@ -1141,7 +1159,7 @@ public class PDFFacturaV33 {
 		if(pago.getNumOperacion()!=null){
 			aux= pago.getNumOperacion();
 		}
-		agregarChunkYNuevaLinea("N�mero de operaci�n: "+aux, font3, frasePago);
+		agregarChunkYNuevaLinea("Número de operación: "+aux, font3, frasePago);
 		
 		
 		PdfPCell celdapago= new PdfPCell();
@@ -1177,8 +1195,9 @@ public class PDFFacturaV33 {
 		double importeTotal = Math.round(comprobante.getTotal().doubleValue() * 100.0) / 100.0;
 		String importeConLetra = NumberToLetterConverter.convertNumberToLetter(importeTotal,
 				comprobante.getMoneda().getValor());
+		System.out.println("importe con letra lleva:"+importeConLetra);
 		Chunk chunkImporteConLetra = new Chunk(importeConLetra, font3);
-		Phrase fraseImporteConLetra = new Phrase();
+		Phrase fraseImporteConLetra = new Phrase(chunkImporteConLetra);
 		if (!comprobante.getReceptor().getRfc().contentEquals("XEXX010101000|")) {
 			// fraseImporteConLetra.add(Chunk.NEWLINE);
 			fraseImporteConLetra.add(new Chunk(importeLetraComExt, font3));
@@ -1206,7 +1225,7 @@ public class PDFFacturaV33 {
 			fraseLeyenda.add(Chunk.NEWLINE);
 		}
 		if (!estatus.equals(Estatus.GENERADO)) {
-			Chunk chunkLeyenda = new Chunk("Este documento es una representaci�n impresa de un CFDI", fontTituloSellos);
+			Chunk chunkLeyenda = new Chunk("Este documento es una representación impresa de un CFDI", fontTituloSellos);
 			// fraseLeyenda.add(Chunk.NEWLINE);
 			fraseLeyenda.add(chunkLeyenda);
 		}
@@ -1215,11 +1234,11 @@ public class PDFFacturaV33 {
 		fraseLeyenda.add(Chunk.NEWLINE);
 		String descripcionMetodoPago = "";
 		if (comprobante.getMetodoPago().getValor().contentEquals("PUE")) {
-			descripcionMetodoPago = " Pago en una sola exhibici�n";
+			descripcionMetodoPago = " Pago en una sola exhibición";
 		} else if (comprobante.getMetodoPago().getValor().contentEquals("PPD")) {
 			descripcionMetodoPago = " Pago en parcialidades o diferido";
 		}
-		String strMetodoPago = "M�todo de pago: ".concat(comprobante.getMetodoPago().getValor())
+		String strMetodoPago = "Método de pago: ".concat(comprobante.getMetodoPago().getValor())
 				.concat(descripcionMetodoPago).concat("                 Moneda: ")
 				.concat(comprobante.getMoneda().getValor());
 		Chunk chunkMetodoDePago = new Chunk(strMetodoPago, fontLeyendaFiscal);
@@ -1346,17 +1365,17 @@ public class PDFFacturaV33 {
           c7.setHorizontalAlignment(Element.ALIGN_LEFT);
           c7.setColspan(2);
           tablaPagare.addCell(c7);
-		tablaPagare.setSpacingAfter(5);
+		tablaPagare.setSpacingAfter(10);
 		
-		Paragraph p8 = new Paragraph("RECIBE:\n",fontLeyendaFiscal);
+		Paragraph p8 = new Paragraph("\n\n\nRECIBE\n",fontLeyendaFiscal);
         PdfPCell c8 = new PdfPCell(p8);
-        c8.setHorizontalAlignment(Element.ALIGN_LEFT);
+        c8.setHorizontalAlignment(Element.ALIGN_CENTER);
         c8.setColspan(1);
         tablaPagare.addCell(c8);
         
-        Paragraph p9 = new Paragraph("FIRMA DE CONFORMIDAD:\n",fontLeyendaFiscal);
+        Paragraph p9 = new Paragraph("\n\n\nFIRMA DE CONFORMIDAD\n",fontLeyendaFiscal);
         PdfPCell c9 = new PdfPCell(p9);
-        c9.setHorizontalAlignment(Element.ALIGN_LEFT);
+        c9.setHorizontalAlignment(Element.ALIGN_CENTER);
         c9.setColspan(1);
         tablaPagare.addCell(c9);
 		
@@ -1447,14 +1466,14 @@ public class PDFFacturaV33 {
 		tablaIVA.setWidths(new int[] { 50, 50 });
 
 		agregarCeldaConFondo("Documento relacionado", fontHeadConceptos, tablaIVA, true);
-		agregarCeldaConFondo("Tipo relaci�n", fontHeadConceptos, tablaIVA, true);
+		agregarCeldaConFondo("Tipo relación", fontHeadConceptos, tablaIVA, true);
 		CfdiRelacionados rs=c.getCfdiRelacionados();
 		for(CfdiRelacionado r: rs.getCfdiRelacionado()){
 			agregarCelda(r.getUUID(), fontConceptos, tablaIVA, true);
 			if(c.getDescuento()==null){
-				agregarCelda("01 - Nota de cr�dito de los documentos relacionados", fontConceptos, tablaIVA, true);
+				agregarCelda("01 - Nota de crédito de los documentos relacionados", fontConceptos, tablaIVA, true);
 			}else{
-				agregarCelda("07 - CFDI por aplicaci�n de anticipo", fontConceptos, tablaIVA, true);
+				agregarCelda("07 - CFDI por aplicación de anticipo", fontConceptos, tablaIVA, true);
 			}
 		}
 		

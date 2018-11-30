@@ -16,6 +16,7 @@ public interface FacturaVttDAO {
 	 * @param f la factura timbrada a almacenar 
 	 */
 	void guardar(FacturaVTT f);
+    void actualizar(FacturaVTT f) ;
 	
 	/**
 	 * <p>&Eacute;ste m&eacutetodo regresa una factura {@code FacturaV3_3} timbrada 

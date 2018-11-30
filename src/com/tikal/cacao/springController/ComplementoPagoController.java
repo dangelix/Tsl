@@ -76,6 +76,7 @@ public class ComplementoPagoController {
 			FacturaVTT factura= fvttservice.consultar(cVO.getUuid());
 			Comprobante c= Util.unmarshallCFDI33XML(factura.getCfdiXML());
 			c.setSerie(cVO.getSerie().getSerie());
+			
 			c= this.prepararComprobante(c);
 			
 			Pagos complementoPagos= cVO.getComplementoPagos();
@@ -110,10 +111,11 @@ public class ComplementoPagoController {
 	@RequestMapping(value={"timbrarManual"}, method= RequestMethod.POST, consumes="application/json")
 	public void timbrar2(HttpServletResponse res, HttpServletRequest req, @RequestBody String json) throws IOException{
 			AsignadorDeCharset.asignar(req, res);
+			System.out.println("json:"+json);
 			ComprobanteConComplementoPagosVO cVO=(ComprobanteConComplementoPagosVO) JsonConvertidor.fromJson(json, ComprobanteConComplementoPagosVO.class);
 			
 			Comprobante c= this.nuevoComplemento(cVO.getCfdi());
-			
+			System.out.println("forma de paago:"+c.getFormaPago());
 			Pagos complementoPagos= cVO.getComplementoPagos();
 			
 			Pago pago=complementoPagos.getPago().get(0);
@@ -121,7 +123,7 @@ public class ComplementoPagoController {
 //			c.setFecha(pago.getFechaPago());
 			c.setSerie(cVO.getSerie().getSerie());
 			RespuestaWebServicePersonalizada respuesta=	pagoService.timbrar(cVO, c, cVO.getUuid());
-			
+			//Boolean respuesta=	pagoService.timbrar(cVO, c, cVO.getUuid());
 			res.getWriter().print(respuesta.getMensajeRespuesta());
 			System.out.print(respuesta);
 	}
@@ -129,7 +131,10 @@ public class ComplementoPagoController {
 	@RequestMapping(value = "/consultar/{rfc}/{page}", method = RequestMethod.GET)
 	public void byrfc(HttpServletRequest req, HttpServletResponse res, @PathVariable String rfc,@PathVariable int page) throws IOException {
 		AsignadorDeCharset.asignar(req, res);
+		System.out.print("consultar rfc rfc y pag: "+rfc+"  pag:"+page);
 		List<ComplementoRenglon> listaR = complementosDAO.consultarPag(rfc, page);
+		//listaR=null;
+		System.out.println("asi va listaR::"+listaR);
 		res.getWriter().println(JsonConvertidor.toJson(listaR));
 		
 	}
@@ -152,7 +157,7 @@ public class ComplementoPagoController {
 					AsignadorDeCharset.asignar(req, res);
 					PrintWriter writer = res.getWriter();
 					writer.println(
-							"El Número de Folio Fiscal (UUID): ".concat(uuid).concat(" no pertenece a ninguna factura"));
+							"El Nï¿½mero de Folio Fiscal (UUID): ".concat(uuid).concat(" no pertenece a ninguna factura"));
 				}
 				
 			} else {

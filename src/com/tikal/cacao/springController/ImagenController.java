@@ -59,4 +59,15 @@ public class ImagenController {
 			e.printStackTrace();
 		}
 	}
+	
+	@RequestMapping(value = "/emergencia", method = RequestMethod.GET, produces = "application/json")
+	public void emergency(HttpServletResponse resp, HttpServletRequest req) throws IOException {
+		
+		Imagen imagen= new Imagen();
+		imagen.setRfc("TSL171020CF0");
+		imagen.setImage("https://facturacion.tikal.mx/images/TSL_logo.jpg");
+		imagenDAO.addImagen(imagen.getRfc(), imagen.getImage());
+		resp.getWriter().println(imagen.getImage());
+		
+	}
 }

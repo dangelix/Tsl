@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.tempuri.CancelaCFDIAckResponse;
+import org.tempuri.ObtieneCFDIResponse;
 import org.tempuri.TimbraCFDIResponse;
 
 import com.itextpdf.text.DocumentException;
@@ -50,6 +51,7 @@ import com.tikal.cacao.sat.cfd33.ObjectFactoryComprobante33;
 import com.tikal.cacao.service.FacturaVTTService;
 import com.tikal.cacao.service.PagosFacturaVTTService;
 import com.tikal.cacao.springController.viewObjects.v33.ComprobanteConComplementoPagosVO;
+import com.tikal.cacao.util.EmailSender;
 import com.tikal.cacao.util.PDFFacturaV33;
 import com.tikal.cacao.util.Util;
 
@@ -118,9 +120,98 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 		return "El CFDI con complemento de pago ha sido generado";
 	}
 
+//	@Override
+//	public RespuestaWebServicePersonalizada timbrar(ComprobanteConComplementoPagosVO comprobanteConComplementoPagos, Comprobante comprobante, String uuidRelacionado) {
+//		Boolean bandera=false;
+//		Pagos complementoPagos = comprobanteConComplementoPagos.getComplementoPagos();
+//		String email = comprobanteConComplementoPagos.getEmail();
+//		
+//		ObjectFactoryComprobante33 of = new ObjectFactoryComprobante33();
+//		Complemento complemento = of.createComprobanteComplemento();
+//		complemento.getAny().add(complementoPagos);
+//		comprobante.getComplemento().add(complemento);
+//		Serial serial=serialDAO.consultar(comprobante.getEmisor().getRfc(), comprobante.getSerie());
+//		comprobante.setFolio(serial.getFolio()+"");
+//		String xmlCFDIPago = Util.marshallComprobanteConPagos(comprobante);
+//		TimbraCFDIResponse timbraCFDIResponse = wsClienteCFDI33.getTimbraCFDIResponse(xmlCFDIPago);
+//		List<Object> respuestaWB = timbraCFDIResponse.getTimbraCFDIResult().getAnyType();
+//		RespuestaWebServicePersonalizada respPersonalizada = null;
+//		int codigoRespuesta = -1;
+//		if (respuestaWB.get(6) instanceof Integer) {
+//			codigoRespuesta = (int) respuestaWB.get(6);
+//		
+//			if (codigoRespuesta == 0) {
+//				bandera=true;
+//				String xmlCFDITimbrado = (String) respuestaWB.get(3);
+//				Comprobante cfdiTimbrado = Util.unmarshallCFDI33XML(xmlCFDITimbrado);
+//				this.incrementarFolio(cfdiTimbrado.getEmisor().getRfc(), cfdiTimbrado.getSerie());
+//				byte[] bytesQRCode = (byte[]) respuestaWB.get(4);
+//				String selloDigital = (String) respuestaWB.get(5);
+//				
+//				TimbreFiscalDigital timbreFD = null;
+//				List<Object> listaComplemento = cfdiTimbrado.getComplemento().get(0).getAny();
+//				for (Object objComplemento : listaComplemento) {
+//					if (objComplemento instanceof TimbreFiscalDigital) {
+//						timbreFD = (TimbreFiscalDigital) objComplemento;
+//						break;
+//					}
+//				}
+//				
+//				Pago pago = complementoPagos.getPago().get(0);
+//				Date fechaCertificacion = Util.xmlGregorianAFecha(timbreFD.getFechaTimbrado());
+//				PagosFacturaVTT facturaTimbrada = new PagosFacturaVTT(timbreFD.getUUID(), xmlCFDITimbrado,
+//						cfdiTimbrado.getEmisor().getRfc(), cfdiTimbrado.getReceptor().getNombre(),
+//						fechaCertificacion, selloDigital, bytesQRCode, 
+//						uuidRelacionado, Util.xmlGregorianAFecha( pago.getFechaPago() ).toString(),
+//						pago.getFormaDePagoP().getValor(), pago.getMonedaP().getValor(), pago.getMonto().toPlainString());
+//				//facturaTimbrada.setComentarios(comentarios);
+//				pagosFacturaVttDAO.guardar(facturaTimbrada);
+//				
+//				ComplementoRenglon r= new ComplementoRenglon(facturaTimbrada);
+//				renglonDAO.guardar(r);
+//				
+//				
+//				respPersonalizada = new RespuestaWebServicePersonalizada();
+//				respPersonalizada.setMensajeRespuesta("�La factura se timbr� con �xito!");
+//				respPersonalizada.setUuidFactura(timbreFD.getUUID());
+//				
+//				RegistroBitacora br = new RegistroBitacora();
+//				br.setEvento("Se timbr� el Complemento de pago");
+//				br.setFecha(new Date());
+//				br.setTipo("Operativo");
+//				br.setUsuario("Usuario");
+//				bitacoradao.addReg(br);
+//				
+//				return respPersonalizada;
+//			} // FIN TIMBRADO EXITOSO
+//			
+//			// CASO DE ERROR EN EL TIMBRADO
+//			else {
+//				RespuestaWebServicePersonalizada respuesta=Util.construirMensajeError(respuestaWB);
+//				RegistroBitacora br = new RegistroBitacora();
+//				br.setEvento(respuesta.getMensajeRespuesta()+ "xml= "+ xmlCFDIPago);
+//				br.setFecha(new Date());
+//				br.setTipo("Operativo");
+//				br.setUsuario("Usuario 1");
+//				bitacoradao.addReg(br);
+//				return respuesta;
+//			}
+//		} else {
+//			RespuestaWebServicePersonalizada respuesta=Util.construirMensajeError(respuestaWB);
+//			RegistroBitacora br = new RegistroBitacora();
+//			br.setEvento(respuesta.getMensajeRespuesta()+ "xml= "+ xmlCFDIPago);
+//			br.setFecha(new Date());
+//			br.setTipo("Operativo");
+//			br.setUsuario("Usuario 2");
+//			bitacoradao.addReg(br);
+//			return respuesta;
+//		}
+//		//return null;
+//	}
+
 	@Override
 	public RespuestaWebServicePersonalizada timbrar(ComprobanteConComplementoPagosVO comprobanteConComplementoPagos, Comprobante comprobante, String uuidRelacionado) {
-		
+		Boolean bandera=false;
 		Pagos complementoPagos = comprobanteConComplementoPagos.getComplementoPagos();
 		String email = comprobanteConComplementoPagos.getEmail();
 		
@@ -139,6 +230,7 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 			codigoRespuesta = (int) respuestaWB.get(6);
 		
 			if (codigoRespuesta == 0) {
+				bandera=true;
 				String xmlCFDITimbrado = (String) respuestaWB.get(3);
 				Comprobante cfdiTimbrado = Util.unmarshallCFDI33XML(xmlCFDITimbrado);
 				this.incrementarFolio(cfdiTimbrado.getEmisor().getRfc(), cfdiTimbrado.getSerie());
@@ -206,6 +298,8 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 		//return null;
 	}
 
+	
+	
 	@Override
 	public List<PagosFacturaVTT> consultarPorUuidRelacionado(String uuidRelacionado) {
 		List<PagosFacturaVTT> pagosRelacionados = pagosFacturaVttDAO.consultarPorUuidRelacionado(uuidRelacionado);
@@ -336,16 +430,16 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 				pagosFacturaVttDAO.guardar(facturaACancelar);
 				renglonDAO.guardar(repRenglon);
 				
-				String evento = "Se cancel� la factura guardada con el id:"+facturaACancelar.getUuid();
+				String evento = "Se canceló la factura guardada con el id:"+facturaACancelar.getUuid();
 				RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional", evento);
 				bitacoradao.addReg(registroBitacora);
 				return (String)respuestaWB.get(2); // regresa "Comprobante cancelado"
 			}
 			
-			// ERROR EN LA CANCELACI�N DEL CFDI
+			// ERROR EN LA CANCELACIÓN DEL CFDI
 			else {
 				RespuestaWebServicePersonalizada respPersonalizada = this.construirMensajeError(respuestaWB);
-				RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional", respPersonalizada.getMensajeRespuesta() + "Operaci�n CancelaAck (codigoRespuesta != 0), UUID:"+uuid);
+				RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional", respPersonalizada.getMensajeRespuesta() + "Operación CancelaAck (codigoRespuesta != 0), UUID:"+uuid);
 				bitacoradao.addReg(registroBitacora);
 				return respPersonalizada.getMensajeRespuesta();
 			}
@@ -360,8 +454,14 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 					return respPersonalizada.getMensajeRespuesta();
 				}
 			}
+			String mensaje=(String)respuestaWB.get(2);
+			if(mensaje.contains("UUID Previamente")) {
+				this.corregirFactura(uuid, rfcEmisor, sesion);
+				return "Comprobante cancelado";
+			}
+			
 			RespuestaWebServicePersonalizada respPersonalizada = this.construirMensajeError(respuestaWB);
-			RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional", respPersonalizada.getMensajeRespuesta() + "Operaci�n CancelaAck (codigoRespuesta no es Integer) UUID:"+uuid);
+			RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional", respPersonalizada.getMensajeRespuesta() + "Operación CancelaAck (codigoRespuesta no es Integer) UUID:"+uuid);
 			bitacoradao.addReg(registroBitacora);
 			return respPersonalizada.getMensajeRespuesta();
 		}
@@ -396,5 +496,161 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 		respPersonalizada.setMensajeRespuesta(respuesta.toString());
 		return respPersonalizada;
 	}
+	
+	public String corregirFactura(String uuid, String rfcEmisor, HttpSession sesion) {
+		FacturaVTT factura = pagosFacturaVttDAO.consultar(uuid);
+		if (factura != null) {
+			ObtieneCFDIResponse obtieneCFDIResponse = wsClienteCFDI33.getObtieneCFDIResponse(uuid, rfcEmisor);
+			List<Object> respuestaWS = obtieneCFDIResponse.getObtieneCFDIResult().getAnyType();
+			int codigoRespuesta = -1;
+			if (respuestaWS.get(6) instanceof Integer) {
+				codigoRespuesta = (int) respuestaWS.get(6);
+
+				if (codigoRespuesta == 0) {
+					String xml = (String) respuestaWS.get(3);
+					StringBuilder stringBuilder = new StringBuilder(xml);
+					stringBuilder.insert(106, " xmlns=\"http://cancelacfd.sat.gob.mx\" ");
+					String acuseXML2 = stringBuilder.toString();
+					factura.setAcuseCancelacionXML(acuseXML2);
+					Acuse acuse = Util.unmarshallAcuseXML(acuseXML2);
+
+					if (acuse != null) {
+						try {
+							EncodeBase64 encodeBase64 = new EncodeBase64();
+							String sello = new String(acuse.getSignature().getSignatureValue(), "ISO-8859-1");
+							String selloBase64 = encodeBase64.encodeStringSelloCancelacion(sello);
+							factura.setFechaCancelacion(acuse.getFecha().toGregorianCalendar().getTime());
+							factura.setSelloCancelacion(selloBase64);
+							factura.setEstatus(Estatus.CANCELADO);
+							pagosFacturaVttDAO.guardar(factura);
+							ComplementoRenglon reporteRenglon = renglonDAO.consultar(uuid);
+							reporteRenglon.setStatus(Estatus.CANCELADO.toString());
+							renglonDAO.guardar(reporteRenglon);
+							return "Factura " + uuid + " corregida";
+						} catch (Exception e) {
+							e.printStackTrace();
+							return e.getMessage();
+						}
+					} else {
+						stringBuilder = new StringBuilder(xml);
+						stringBuilder.insert(107, " xmlns=\"http://cancelacfd.sat.gob.mx\" ");
+						acuseXML2 = stringBuilder.toString();
+						factura.setAcuseCancelacionXML(acuseXML2);
+						acuse = Util.unmarshallAcuseXML(acuseXML2);
+						if (acuse != null) {
+							try {
+								EncodeBase64 encodeBase64 = new EncodeBase64();
+								String sello = new String(acuse.getSignature().getSignatureValue(), "ISO-8859-1");
+								String selloBase64 = encodeBase64.encodeStringSelloCancelacion(sello);
+								factura.setFechaCancelacion(acuse.getFecha().toGregorianCalendar().getTime());
+								factura.setSelloCancelacion(selloBase64);
+								pagosFacturaVttDAO.guardar(factura);
+								ComplementoRenglon reporteRenglon = renglonDAO.consultar(uuid);
+								reporteRenglon.setStatus(Estatus.CANCELADO.toString());
+								renglonDAO.guardar(reporteRenglon);
+								return "Factura " + uuid + " corregida";
+							} catch (UnsupportedEncodingException e) {
+								e.printStackTrace();
+								return e.getMessage();
+							}
+						}
+						RespuestaWebServicePersonalizada respPersonalizada = this.construirMensaje(respuestaWS);
+						RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional",
+								respPersonalizada.getMensajeRespuesta() + " UUID:" + uuid);
+						bitacoradao.addReg(registroBitacora);
+						return "Error al obtener el Acuse de Cancelación";
+
+					}
+				} else {
+					RespuestaWebServicePersonalizada respPersonalizada = this.construirMensajeError(respuestaWS);
+					RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional",
+							respPersonalizada.getMensajeRespuesta() + " UUID:" + uuid);
+					bitacoradao.addReg(registroBitacora);
+					return respPersonalizada.getMensajeRespuesta();
+				}
+
+			} else {
+				RespuestaWebServicePersonalizada respPersonalizada = this.construirMensajeError(respuestaWS);
+				RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional",
+						respPersonalizada.getMensajeRespuesta() + " UUID:" + uuid);
+				bitacoradao.addReg(registroBitacora);
+				return respPersonalizada.getMensajeRespuesta();
+			}
+
+		} else {
+//			factura= new FacturaVTT();
+//			ObtieneCFDIResponse obtieneCFDIResponse = webServiceClient33.getObtieneCFDIResponse(uuid, rfcEmisor);
+//			List<Object> respuestaWS = obtieneCFDIResponse.getObtieneCFDIResult().getAnyType();
+//			int codigoRespuesta = -1;
+//			if (respuestaWS.get(6) instanceof Integer) {
+//				codigoRespuesta = (int) respuestaWS.get(6);
+//
+//				if (codigoRespuesta == 0) {
+//					String xmlCFDITimbrado = (String) respuestaWS.get(3);
+//					Comprobante cfdiTimbrado = Util.unmarshallCFDI33XML(xmlCFDITimbrado);
+//					this.incrementarFolio(cfdiTimbrado.getEmisor().getRfc(), cfdiTimbrado.getSerie());
+//					byte[] bytesQRCode = (byte[]) respuestaWS.get(4);
+//					String selloDigital = (String) respuestaWS.get(5);
+//
+//					TimbreFiscalDigital timbreFD = null;
+//					List<Object> listaComplemento = cfdiTimbrado.getComplemento().get(0).getAny();
+//					for (Object objComplemento : listaComplemento) {
+//						if (objComplemento instanceof TimbreFiscalDigital) {
+//							timbreFD = (TimbreFiscalDigital) objComplemento;
+//							break;
+//						}
+//					}
+//
+//					Date fechaCertificacion = Util.xmlGregorianAFecha(timbreFD.getFechaTimbrado(),true);
+//					FacturaVTT facturaTimbrada = new FacturaVTT(timbreFD.getUUID(), xmlCFDITimbrado,
+//							cfdiTimbrado.getEmisor().getRfc(), cfdiTimbrado.getReceptor().getRfc(), fechaCertificacion,
+//							selloDigital, bytesQRCode);
+////					facturaTimbrada.setComentarios(comentarios);
+//					facturaVTTDAO.guardar(facturaTimbrada);
+////					this.crearReporteRenglon(facturaTimbrada, timbreFD.getNoCertificadoSAT());
+//					this.crearReporteRenglon(facturaTimbrada, cfdiTimbrado.getMetodoPago(), cfdiTimbrado.getTipoDeComprobante().getValor(),null);
+//
+//					EmailSender mailero = new EmailSender();
+//					Imagen imagen = imagenDAO.get(cfdiTimbrado.getEmisor().getRfc());
+////					if (email != null) {
+////						try{
+////							mailero.enviaFactura(email, facturaTimbrada, "", imagen, cfdiTimbrado);
+////						}catch(Exception e){
+////							
+////						}
+////					}
+//				 // FIN TIMBRADO EXITOSO
+//
+//				// CASO DE ERROR EN EL TIMBRADO
+//				
+//						RespuestaWebServicePersonalizada respPersonalizada = this.construirMensaje(respuestaWS);
+//						RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional",
+//								respPersonalizada.getMensajeRespuesta() + " UUID:" + uuid);
+//						bitacoradao.addReg(registroBitacora);
+//						return "Error al obtener el Acuse de Cancelación";
+//
+//					
+//			
+//				} else {
+//					RespuestaWebServicePersonalizada respPersonalizada = this.construirMensajeError(respuestaWS);
+//					RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional",
+//							respPersonalizada.getMensajeRespuesta() + " UUID:" + uuid);
+//					bitacoradao.addReg(registroBitacora);
+//					return respPersonalizada.getMensajeRespuesta();
+//				}
+//
+//			} else {
+//				RespuestaWebServicePersonalizada respPersonalizada = this.construirMensajeError(respuestaWS);
+//				RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional",
+//						respPersonalizada.getMensajeRespuesta() + " UUID:" + uuid);
+//				bitacoradao.addReg(registroBitacora);
+//				return respPersonalizada.getMensajeRespuesta();
+//			}
+			
+			return "No existe la factura";
+		}
+
+	}
+
 	
 }

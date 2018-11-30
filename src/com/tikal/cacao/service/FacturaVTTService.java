@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.tikal.cacao.model.FacturaVTT;
+import com.tikal.cacao.springController.viewObjects.Comprobante33VO;
 import com.tikal.cacao.springController.viewObjects.v33.ComprobanteConComentarioVO;
 import com.tikal.cacao.springController.viewObjects.v33.ComprobanteVO;
 import com.tikal.cacao.util.PDFFacturaV33;
@@ -40,6 +41,8 @@ public interface FacturaVTTService {
 	 * @return un texto con el resultado de la operaci&oacute;n de Timbrado del
 	 * CFDI 3.3
 	 */
+	
+	String actualizar33(Comprobante33VO comprobanteConComentario, String uuid, HttpSession sesion);
 	String timbrarCFDIGenerado(String uuid, String email, HttpSession sesion);
 	
 	/**
@@ -76,6 +79,8 @@ public interface FacturaVTTService {
 	PdfWriter obtenerPDF(FacturaVTT factura, OutputStream os) throws MalformedURLException, DocumentException, IOException;
 
 	void enviarEmail(String email, String uuid, HttpSession sesion);
+	
+	String corregirFactura(String uuid, String rfcEmisor, HttpSession sesion);
 
 	//String timbrar(ComprobanteVO cVO, HttpSession session, boolean auto, Object extra, String noOrden);
 }

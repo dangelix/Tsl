@@ -92,7 +92,7 @@ public class FacturaVTTController {
 		System.out.println("Yisus manda:"+json);
 		try {
 			AsignadorDeCharset.asignar(req, res);
-			
+			PrintWriter writer = res.getWriter();
 			if (ServicioSesion.verificarPermiso(req, usuarioDAO, perfilDAO, 11)) {
 				ComprobanteConComentarioVO comprobanteConComentario = 
 						(ComprobanteConComentarioVO) JsonConvertidor.fromJson(json, ComprobanteConComentarioVO.class);
@@ -110,17 +110,46 @@ public class FacturaVTTController {
 			e.printStackTrace();
 		}
 	}
+
+	@RequestMapping(value = "/timbrar", method = RequestMethod.POST, consumes = "application/json", produces = "text/html")
+	public void timbrar(HttpServletRequest req, HttpServletResponse res, @RequestBody String json) {
+		try {
+			AsignadorDeCharset.asignar(req, res);
+			if (ServicioSesion.verificarPermiso(req, usuarioDAO, perfilDAO, 11)) {
+				ComprobanteVO cVO = (ComprobanteVO) JsonConvertidor.fromJson(json, ComprobanteVO.class);
+				System.out.println("******");
+				String textoRespuesta = facturaVTTService.timbrar(cVO, req.getSession(), false, null, cVO.getNoOrden());
+				res.setContentType("text/html");
+				res.getWriter().println(textoRespuesta);
+			} else {
+				res.sendError(403);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
+	
+	//boton de guardar cotizacion al editarla...
 	
 	@RequestMapping(value = "/actualizar/{uuid}", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
 	public void actualizar(HttpServletRequest req, HttpServletResponse res, @RequestBody String json,
 			@PathVariable String uuid) {
 		try {
+			System.out.println("el front trae:"+json);
+			System.out.println("uuid:"+uuid);
 			AsignadorDeCharset.asignar(req, res);
 			if (ServicioSesion.verificarPermiso(req, usuarioDAO, perfilDAO, 11)) {
+			//	FacturaVTT prefactura = facturaVTTService.consultar(uuid);
+				////System.out.println("serie anterior"+prefactura.);
 				ComprobanteConComentarioVO comprobanteConComentario = 
 						(ComprobanteConComentarioVO) JsonConvertidor.fromJson(json, ComprobanteConComentarioVO.class);
 				String resultado = facturaVTTService.actualizar(comprobanteConComentario, uuid, req.getSession());
+				System.out.println("serie nueva:"+comprobanteConComentario.getComprobante().getSerie()+" "+comprobanteConComentario.getComprobante().getFolio());
+				
+			//	System.out.println("serie anterior"+prefactura.getCfdi().getSerie()+" "+prefactura.getCfdi().getFolio());
+			//	if (prefactura.getCfdi().getSerie()){}
+				
 				
 				res.getWriter().println(resultado);
 			} else {
@@ -138,14 +167,18 @@ public class FacturaVTTController {
 		try {
 			AsignadorDeCharset.asignar(req, res);
 			if (ServicioSesion.verificarPermiso(req, usuarioDAO, perfilDAO, 11)) {
+				System.out.println("consultando el UUID:"+uuid);
 				FacturaVTT prefactura = facturaVTTService.consultar(uuid);
+		//		System.out.println("no de orden en factura vtt consultada:"+prefactura.getNoOrden());
 				ComprobanteConComentarioVO compComentariosVO = new ComprobanteConComentarioVO();
 				Comprobante c = Util.unmarshallCFDI33XML(prefactura.getCfdiXML());
 				c.setFecha(null);
-				
+				compComentariosVO.setNoOrden(prefactura.getNoOrden());
 				compComentariosVO.setComentario(prefactura.getComentarios());
 				compComentariosVO.setComprobante(c);
+				System.out.println("datos de vtt consultada:"+JsonConvertidor.toJsonComprobantes(compComentariosVO));
 				res.getWriter().println(JsonConvertidor.toJsonComprobantes(compComentariosVO));
+				
 			} else {
 				res.sendError(403);
 			}
@@ -154,28 +187,20 @@ public class FacturaVTTController {
 		}
 	}
 	
-	@RequestMapping(value = "/timbrar", method = RequestMethod.POST, consumes = "application/json", produces = "text/html")
-	public void timbrar(HttpServletRequest req, HttpServletResponse res, @RequestBody String json) {
-		try {
-			AsignadorDeCharset.asignar(req, res);
-			if (ServicioSesion.verificarPermiso(req, usuarioDAO, perfilDAO, 11)) {
-				ComprobanteVO cVO = (ComprobanteVO) JsonConvertidor.fromJson(json, ComprobanteVO.class);
-				String textoRespuesta = facturaVTTService.timbrar(cVO, req.getSession(), false, null, cVO.getNoOrden());
-				res.setContentType("text/html");
-				res.getWriter().println(textoRespuesta);
-			} else {
-				res.sendError(403);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
+
+	// boton de timbrar al editar la factura
 	@RequestMapping(value = "/timbrar/{uuid}", method = RequestMethod.POST, consumes = "application/json")
 	public void timbrarUUID(HttpServletRequest req, HttpServletResponse res, @RequestBody String json, @PathVariable String uuid) {
 		try {
 			AsignadorDeCharset.asignar(req, res);
+			System.out.println("****************numero de orden:JSON"+json);
+			
 			if (ServicioSesion.verificarPermiso(req, usuarioDAO, perfilDAO, 11)) {
+			//	ComprobanteConComentarioVO comprobanteConComentario = 
+				//		(ComprobanteConComentarioVO) JsonConvertidor.fromJson(json, ComprobanteConComentarioVO.class);
+			//	String resultado = facturaVTTService.actualizar(comprobanteConComentario, uuid, req.getSession());
+	 			
+				
 				String textoRespuesta = facturaVTTService.timbrar(json, uuid,req.getSession());
 				res.setContentType("text/html");
 				res.getWriter().println(textoRespuesta);
@@ -191,6 +216,7 @@ public class FacturaVTTController {
 	public void timbrarPrefactura(HttpServletRequest req, HttpServletResponse res, @RequestBody String body) {
 		try {
 			AsignadorDeCharset.asignar(req, res);
+			System.out.println("*-----------");
 			if (ServicioSesion.verificarPermiso(req, usuarioDAO, perfilDAO, 11)) {
 				String[] uuidYEmail = body.split(",");
 				String textoRespuesta = facturaVTTService.timbrarCFDIGenerado(uuidYEmail[0], uuidYEmail[1], req.getSession() );
@@ -208,7 +234,7 @@ public class FacturaVTTController {
 	public void cancelarConAcuse(HttpServletRequest req, HttpServletResponse res, @RequestBody String body) {
 		try {
 			if (ServicioSesion.verificarPermiso(req, usuarioDAO, perfilDAO, 11)) {
-				AsignadorDeCharset.asignar(req, res);
+  				AsignadorDeCharset.asignar(req, res);
 				String[] uuidYrfc = body.split(",");
 				String textoRespuesta = facturaVTTService.cancelarAck(uuidYrfc[0], uuidYrfc[1], req.getSession());
 				res.getWriter().println(textoRespuesta);
@@ -225,6 +251,7 @@ public class FacturaVTTController {
 		try {
 			if (ServicioSesion.verificarPermiso(req, usuarioDAO, perfilDAO, 11)) {
 				FacturaVTT factura = facturaVTTService.consultar(uuid);
+				System.out.println("NO ORDEN:"+factura.getNoOrden());
 				PdfWriter pdfWriter = facturaVTTService.obtenerPDF(factura, res.getOutputStream());
 				if (pdfWriter != null) {
 					res.setContentType("Application/Pdf");

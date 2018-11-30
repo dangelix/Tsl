@@ -25,4 +25,6 @@ public interface PagosFacturaVTTService {
 	PdfWriter obtenerPDF(PagosFacturaVTT factura, OutputStream os) throws MalformedURLException, DocumentException, IOException;
 	
 	String cancelarAck(String uuid, String rfcEmisor, HttpSession sesion);
+	
+	String corregirFactura(String uuid, String rfcEmisor, HttpSession sesion) ;
 }

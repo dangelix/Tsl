@@ -812,14 +812,14 @@ app.controller("comprobante33", [ '$scope', '$location', 'comprobanteService33',
 //					iva = iva.toFixed(2)*1;
 //				}
 				var iva=0;
-				if(!$scope.ivaIncluido){
-					iva=total*0.16;
-				}else{
+//				if(!$scope.ivaIncluido){
+//					iva=total*0.16;
+//				}else{
 					for(var i=0; i<$scope.comprobante.conceptos.concepto.length; i++){
-						
-						iva+=$scope.comprobante.conceptos.concepto[i].impuesto;
+						var importe = $scope.comprobante.conceptos.concepto[i].impuestos.traslados.traslado[0].importe
+						iva+=importe;
 					}
-				}
+//				}
 				iva=iva.toFixed(2)*1;
 				$scope.comprobante.impuestos.totalImpuestosTrasladados=iva;
 //				$scope.comprobante.subTotal=ntotal;

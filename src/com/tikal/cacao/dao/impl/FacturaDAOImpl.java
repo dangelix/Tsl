@@ -6,11 +6,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.stereotype.Repository;
 
 import com.tikal.cacao.dao.FacturaDAO;
 import com.tikal.cacao.factura.Estatus;
 import com.tikal.cacao.model.Factura;
+import com.tikal.cacao.model.FacturaVTT;
+import com.tikal.cacao.model.RegistroBitacora;
+import com.tikal.cacao.sat.cfd33.Comprobante;
+import com.tikal.cacao.springController.viewObjects.v33.ComprobanteConComentarioVO;
+import com.tikal.cacao.util.Util;
 
 /**
  * 
@@ -74,6 +81,7 @@ public class FacturaDAOImpl implements FacturaDAO{
 	public int getPaginas(String rfc) {
 		return ((ofy().load().type(Factura.class).filter("rfcEmisor",rfc).count()-1)/25)+1;
 	}
+	
 	
 	
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import com.tikal.cacao.dao.FacturaVttDAO;
 import com.tikal.cacao.dao.PagosFacturaVttDAO;
 import com.tikal.cacao.factura.Estatus;
+import com.tikal.cacao.model.Empresa;
 import com.tikal.cacao.model.FacturaVTT;
 import com.tikal.cacao.model.PagosFacturaVTT;
 
@@ -18,6 +19,18 @@ public class FacturaVttDAOImpl implements FacturaVttDAO {
 		ofy().save().entity(f).now();
 	}
 
+	
+	@Override
+	public void actualizar(FacturaVTT f) {
+		FacturaVTT old = this.consultar(f.getUuid());
+		if (old != null) {
+			old.setNoOrden(f.getNoOrden());
+			old.setComentarios(f.getComentarios());
+			old.setDatosExtra(f.getDatosExtra());
+			ofy().save().entity(old);
+		}
+
+	}
 	@Override
 	public FacturaVTT consultar(String uuid) {
 		return ofy().load().type(FacturaVTT.class).id(uuid).now();
@@ -48,7 +61,7 @@ public class FacturaVttDAOImpl implements FacturaVttDAO {
 
 	@Override
 	public List<PagosFacturaVTT> cosultarPorCliente(String rfcCliente) {
-		//TODO IMPLEMENTAR ÍNDICE
+		//TODO IMPLEMENTAR ï¿½NDICE
 		return null;
 		//return ofy().load().type(PagosFacturaVTT.class).filter("", rfcCliente).list();
 	}

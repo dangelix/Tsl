@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.tikal.cacao.sat.cfd33.Comprobante;
 import com.tikal.cacao.springController.requestObject.FacturaRO;
+import com.tikal.cacao.springController.viewObjects.Comprobante33VO;
 import com.tikal.cacao.springController.viewObjects.ComprobanteConComentarioVO;
 import com.tikal.cacao.springController.viewObjects.ComprobanteVO;
 import com.tikal.cacao.springController.viewObjects.ListaPagosVO;
@@ -22,9 +23,13 @@ public class JsonConvertidor {
 			g = getGsonWithSpecificTypeAdapter(clase, new RegimenAdapter());
 		} else if (clase.equals(ListaPagosVO.class)) {
 			g = getGsonWithSpecificTypeAdapter(clase, new ListaPagosVOAdapter());
-		} else if (clase.equals(Comprobante.class) || clase.equals(com.tikal.cacao.sat.cfd.Comprobante.class)
-				|| clase.equals(FacturaRO.class) || clase.equals(ComprobanteVO.class)
+		} else if (clase.equals(Comprobante.class) 
+				|| clase.equals(com.tikal.cacao.sat.cfd.Comprobante.class)
+				|| clase.equals(FacturaRO.class)
+				|| clase.equals(ComprobanteVO.class)
 				|| clase.equals(ComprobanteConComentarioVO.class)
+				|| clase.equals(Comprobante33VO.class)
+				|| clase.equals(com.tikal.cacao.sat.cfd33.Comprobante.class)
 				|| clase.equals(com.tikal.cacao.springController.viewObjects.v33.ComprobanteVO.class)
 				|| clase.equals(com.tikal.cacao.springController.viewObjects.v33.ComprobanteConComentarioVO.class)
 				|| clase.equals(ComprobanteConComplementoPagosVO.class)) {

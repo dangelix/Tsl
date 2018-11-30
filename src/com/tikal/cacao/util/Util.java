@@ -70,7 +70,7 @@ public class Util {
 	 */
 	public static Date obtenerFecha(String cadenaFecha) {
 		DateFormat formato = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-		//TODO suposición de que en App Engine esta línea causa error formato.setTimeZone(TimeZone.getTimeZone("America/Mexico_City"));
+		//TODO suposiciï¿½n de que en App Engine esta lï¿½nea causa error formato.setTimeZone(TimeZone.getTimeZone("America/Mexico_City"));
 		Date fechaIngreso = new Date();
 		try {
 			fechaIngreso = formato.parse(cadenaFecha);
@@ -101,7 +101,7 @@ public class Util {
 	
 	/**
 	 * 
-	 * @param fecha Fecha a la que se le dará el formato
+	 * @param fecha Fecha a la que se le darï¿½ el formato
 	 * @return una representaci&oacute;n del la fecha en objeto String
 	 */
 	public static String regresaFechaConFormato(Date fecha) {
@@ -318,7 +318,7 @@ public class Util {
 		int i = 0;
 		while (!avisar && i < diasDePago.length ) {
 			if (hoy == diasDePago[i] || hoy == diasDePago[i] - 1 || hoy == diasDePago[i] - 2 ) {
-				mensaje = "Éste esquema tiene pagos pendientes ";
+				mensaje = "ï¿½ste esquema tiene pagos pendientes ";
 				avisar = true;
 			} else {
 				i++;
@@ -415,6 +415,13 @@ public class Util {
     	return date2;
     }
 	
+	public static Date xmlGregorianAFecha(XMLGregorianCalendar calendar, boolean xx) {
+		if (calendar == null) {
+			return null;
+		}
+		return calendar.toGregorianCalendar().getTime();
+	}
+	
 	public static Date xmlGregorianAFecha(XMLGregorianCalendar calendar) {
 		if (calendar == null) {
 			return null;
@@ -471,7 +478,7 @@ public class Util {
 	
 	public static Comprobante unmarshallXML(String cadenaXML) {
 		try {
-			//TODO en el caso de nomina agregar al método newInstance la clase NominaElement.class
+			//TODO en el caso de nomina agregar al mï¿½todo newInstance la clase NominaElement.class
 			JAXBContext jaxbContext = JAXBContext.newInstance(Comprobante.class, TimbreFiscalDigital.class, ImpuestosLocales.class);
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			StringBuffer xmlStr = new StringBuffer(cadenaXML);
@@ -771,9 +778,9 @@ public class Util {
 	}
 	
 	public static RespuestaWebServicePersonalizada construirMensajeError(List<Object> respuestaWB) {
-		StringBuilder respuestaError = new StringBuilder("Excepción en caso de error: ");
+		StringBuilder respuestaError = new StringBuilder("Excepciï¿½n en caso de error: ");
 		respuestaError.append(respuestaWB.get(0)+ "\r\n");
-		respuestaError.append("Código de error: " + respuestaWB.get(1) + "\r\n");
+		respuestaError.append("Cï¿½digo de error: " + respuestaWB.get(1) + "\r\n");
 		respuestaError.append("Mensaje de respuesta: " + respuestaWB.get(2) + "\r\n");
 		respuestaError.append( respuestaWB.get(6) + "\r\n");
 		respuestaError.append( respuestaWB.get(7) + "\r\n");
