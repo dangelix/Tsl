@@ -175,6 +175,7 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 		String evento = "Se guardó la prefactura con id: " + factura.getUuid();
 		RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional", evento);
 		bitacoradao.addReg(registroBitacora);
+		
 		if (factura.getEstatus().equals(Estatus.TIMBRADO)){} 
 			
 		else if (factura.getEstatus().equals(Estatus.GENERADO)) {
@@ -195,8 +196,9 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 				String evento = "Se timbró la factura con UUID: " + respWBPersonalizada.getUuidFactura();
 				RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional", evento);
 				bitacoradao.addReg(registroBitacora);
-				this.incrementarFolio(c.getEmisor().getRfc(), c.getSerie());
+				//sthis.incrementarFolio(c.getEmisor().getRfc(), c.getSerie());
 			}
+			this.incrementarFolio(c.getEmisor().getRfc(), c.getSerie());
 		} else {
 			RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional",
 					respWBPersonalizada.getMensajeRespuesta() + " Serie y Folio del CFDI: " + comprobanteVO.getComprobante().getSerie() + comprobanteVO.getComprobante().getFolio() );
@@ -216,7 +218,7 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 
 		facturaVTTDAO.guardar(factura);
 		this.crearReporteRenglon(factura, c.getMetodoPago(), c.getTipoDeComprobante().getValor());
-		this.incrementarFolio(factura.getRfcEmisor(), c.getSerie());
+//		this.incrementarFolio(factura.getRfcEmisor(), c.getSerie());
 		String evento = "Se actualizó la prefactura con id: " + factura.getUuid();
 		RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional", evento);
 		bitacoradao.addReg(registroBitacora);
