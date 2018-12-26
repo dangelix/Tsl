@@ -67,7 +67,7 @@ app.service('complementoService',['$http','$q', function($http, $q){
 }]);
 
 
-app.controller("listComplementosController",['complementoService','$rootScope','$scope','$location','$routeParams','$cookieStore','$http','$routeParams',function(complementoService,$rootScope,$scope, $location,$routeParams,$cookieStore,$http,$routeParams){
+app.controller("listComplementosController",['complementoService','comprobanteService33','$rootScope','$scope','$location','$routeParams','$cookieStore','$http','$routeParams',function(complementoService,comprobanteService33,$rootScope,$scope, $location,$routeParams,$cookieStore,$http,$routeParams){
 //	serialService.findSeries($cookieStore.get("rfcEmpresa")).then(function(data){
 //		$scope.seriales=data;
 //	})
