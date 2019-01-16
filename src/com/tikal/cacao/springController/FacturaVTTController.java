@@ -139,13 +139,15 @@ public class FacturaVTTController {
 			System.out.println("el front trae:"+json);
 			System.out.println("uuid:"+uuid);
 			AsignadorDeCharset.asignar(req, res);
+			
 			if (ServicioSesion.verificarPermiso(req, usuarioDAO, perfilDAO, 11)) {
-			//	FacturaVTT prefactura = facturaVTTService.consultar(uuid);
-				////System.out.println("serie anterior"+prefactura.);
+//				FacturaVTT prefactura = facturaVTTService.consultar(uuid);
+//				System.out.println("serie anterior"+prefactura.getCfdi().getSerie());
+				
 				ComprobanteConComentarioVO comprobanteConComentario = 
 						(ComprobanteConComentarioVO) JsonConvertidor.fromJson(json, ComprobanteConComentarioVO.class);
 				String resultado = facturaVTTService.actualizar(comprobanteConComentario, uuid, req.getSession());
-				System.out.println("serie nueva:"+comprobanteConComentario.getComprobante().getSerie()+" "+comprobanteConComentario.getComprobante().getFolio());
+			//	System.out.println("serie nueva:"+comprobanteConComentario.getComprobante().getSerie()+" "+comprobanteConComentario.getComprobante().getFolio());
 				
 			//	System.out.println("serie anterior"+prefactura.getCfdi().getSerie()+" "+prefactura.getCfdi().getFolio());
 			//	if (prefactura.getCfdi().getSerie()){}

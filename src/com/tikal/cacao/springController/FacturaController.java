@@ -251,7 +251,7 @@ public class FacturaController {
 		try {
 			AsignadorDeCharset.asignar(req, res);
 			PrintWriter writer = res.getWriter();
-			
+			System.out.println("generar");
 			ComprobanteConComentarioVO compConComent = (ComprobanteConComentarioVO) JsonConvertidor.fromJson(json, ComprobanteConComentarioVO.class);
 			Comprobante c = compConComent.getComprobante();
 			
@@ -271,6 +271,7 @@ public class FacturaController {
 			factura.setComentarios(compConComent.getComentarios());
 			facturaDAO.guardar(factura);
 			crearReporteRenglon(factura);
+			//incrementarFolio(c.getEmisor().getRfc(), c.getSerie());
 			writer.println("�La factura se gener� con �xito!"); 
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();

@@ -217,7 +217,7 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 		FacturaVTT factura = new FacturaVTT(uuid, xmlComprobante, c.getEmisor().getRfc(), c.getReceptor().getNombre(),
 				Util.xmlGregorianAFecha(c.getFecha()), null, null, comprobanteConComentario.getNoOrden());
 		factura.setComentarios(comprobanteConComentario.getComentario());
-		
+		 
 
 		facturaVTTDAO.guardar(factura);
 		if (ren.getSerie()!= comprobanteConComentario.getComprobante().getSerie()){
