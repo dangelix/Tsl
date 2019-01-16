@@ -176,11 +176,7 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 		RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional", evento);
 		bitacoradao.addReg(registroBitacora);
 		
-		if (factura.getEstatus().equals(Estatus.TIMBRADO)){} 
-			
-		else if (factura.getEstatus().equals(Estatus.GENERADO)) {
-			
-		}
+	
 		this.incrementarFolio(factura.getRfcEmisor(), c.getSerie());
 		return "La factura se generó con éxito!";
 	}
@@ -196,7 +192,7 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 				String evento = "Se timbró la factura con UUID: " + respWBPersonalizada.getUuidFactura();
 				RegistroBitacora registroBitacora = Util.crearRegistroBitacora(sesion, "Operacional", evento);
 				bitacoradao.addReg(registroBitacora);
-				//sthis.incrementarFolio(c.getEmisor().getRfc(), c.getSerie());
+				//this.incrementarFolio(c.getEmisor().getRfc(), c.getSerie());
 			}
 			this.incrementarFolio(c.getEmisor().getRfc(), c.getSerie());
 		} else {
@@ -210,13 +206,24 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 	@Override
 	public String actualizar(ComprobanteConComentarioVO comprobanteConComentario, String uuid, HttpSession sesion) {
 		Comprobante c = comprobanteConComentario.getComprobante();
+		ReporteRenglon ren= repRenglonDAO.consultar(uuid);
+		
+		
+		System.out.println("actualizarTotal:"+c.getTotal()+" subtotal:"+c.getSubTotal()+" impuestos:"+c.getImpuestos());
 		String xmlComprobante = Util.marshallComprobante33(c, false);
-		System.out.println("actualizar serie:"+c.getSerie());
+//		System.out.println("uuid:"+uuid);
+//		System.out.println("actualizar serieanterior:"+ren.getSerie());
+//		System.out.println("actualizar serie nueva:"+c.getSerie());
 		FacturaVTT factura = new FacturaVTT(uuid, xmlComprobante, c.getEmisor().getRfc(), c.getReceptor().getNombre(),
 				Util.xmlGregorianAFecha(c.getFecha()), null, null, comprobanteConComentario.getNoOrden());
 		factura.setComentarios(comprobanteConComentario.getComentario());
+		
 
 		facturaVTTDAO.guardar(factura);
+		if (ren.getSerie()!= comprobanteConComentario.getComprobante().getSerie()){
+			this.incrementarFolio(comprobanteConComentario.getComprobante().getEmisor().getRfc(), comprobanteConComentario.getComprobante().getSerie());
+			
+		}
 		this.crearReporteRenglon(factura, c.getMetodoPago(), c.getTipoDeComprobante().getValor());
 //		this.incrementarFolio(factura.getRfcEmisor(), c.getSerie());
 		String evento = "Se actualizó la prefactura con id: " + factura.getUuid();
@@ -393,7 +400,7 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 	public int obtenerNumeroPaginas(String rfcEmisor) {
 		return repRenglonDAO.pags(rfcEmisor);
 	}
-
+ 
 	@Override
 	public PdfWriter obtenerPDF(FacturaVTT factura, OutputStream os)
 			throws MalformedURLException, DocumentException, IOException {
@@ -634,10 +641,12 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 				respPersonalizada = new RespuestaWebServicePersonalizada();
 				respPersonalizada.setMensajeRespuesta("?La factura se timbró con éxito!");
 				respPersonalizada.setUuidFactura(timbreFD.getUUID());
+				this.incrementarFolio(facturaTimbrada.getRfcEmisor(), cfdiTimbrado.getSerie());
 				return respPersonalizada;
 			} // FIN TIMBRADO EXITOSO
 
 			// CASO DE ERROR EN EL TIMBRADO
+			
 			else {
 				RegistroBitacora r= new RegistroBitacora();
 				r.setEvento("Fallo en factura xml: "+ xmlCFDI);
