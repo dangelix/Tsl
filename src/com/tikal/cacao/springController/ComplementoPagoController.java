@@ -72,6 +72,7 @@ public class ComplementoPagoController {
 	@RequestMapping(value={"timbrar"}, method= RequestMethod.POST, consumes="application/json")
 	public void timbrar(HttpServletResponse res, HttpServletRequest req, @RequestBody String json) throws UnsupportedEncodingException{
 			AsignadorDeCharset.asignar(req, res);
+			System.out.println("JSN:"+json);
 			ComprobanteConComplementoPagosVO cVO=(ComprobanteConComplementoPagosVO) JsonConvertidor.fromJson(json, ComprobanteConComplementoPagosVO.class);
 			FacturaVTT factura= fvttservice.consultar(cVO.getUuid());
 			Comprobante c= Util.unmarshallCFDI33XML(factura.getCfdiXML());
@@ -121,7 +122,7 @@ public class ComplementoPagoController {
 			Pago pago=complementoPagos.getPago().get(0);
 			Complemento complemento= new Comprobante.Complemento();
 //			c.setFecha(pago.getFechaPago());
-			c.setSerie(cVO.getSerie().getSerie());
+			//c.setSerie(cVO.getSerie().getSerie());
 			RespuestaWebServicePersonalizada respuesta=	pagoService.timbrar(cVO, c, cVO.getUuid());
 			//Boolean respuesta=	pagoService.timbrar(cVO, c, cVO.getUuid());
 			res.getWriter().print(respuesta.getMensajeRespuesta());

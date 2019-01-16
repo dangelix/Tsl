@@ -1,5 +1,6 @@
 package com.tikal.cacao.service.impl;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -96,6 +97,9 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 	
 	@Autowired
 	BitacoraDAO bitacoradao;
+	
+//	@Autowired
+//	PagosFacturaVTTService pagoService;
 	
 	@Override
 	public String agregar(ComprobanteConComplementoPagosVO comprobanteConComplementoPagos, Comprobante comprobante, String uuidRelacionado) {
@@ -214,12 +218,15 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 		Boolean bandera=false;
 		Pagos complementoPagos = comprobanteConComplementoPagos.getComplementoPagos();
 		String email = comprobanteConComplementoPagos.getEmail();
-		
+		ByteArrayOutputStream os= new ByteArrayOutputStream();
 		ObjectFactoryComprobante33 of = new ObjectFactoryComprobante33();
 		Complemento complemento = of.createComprobanteComplemento();
 		complemento.getAny().add(complementoPagos);
 		comprobante.getComplemento().add(complemento);
-		Serial serial=serialDAO.consultar(comprobante.getEmisor().getRfc(), comprobante.getSerie());
+		System.out.println("compl:"+comprobante.getEmisor().getRfc());
+		System.out.println("cserie:"+ comprobanteConComplementoPagos.getSerie().getSerie());
+		Serial serial=serialDAO.consultar(comprobante.getEmisor().getRfc(), comprobanteConComplementoPagos.getSerie().getSerie());
+		System.out.println("serial:"+serial.getFolio());
 		comprobante.setFolio(serial.getFolio()+"");
 		String xmlCFDIPago = Util.marshallComprobanteConPagos(comprobante);
 		TimbraCFDIResponse timbraCFDIResponse = wsClienteCFDI33.getTimbraCFDIResponse(xmlCFDIPago);
@@ -263,6 +270,31 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 				respPersonalizada = new RespuestaWebServicePersonalizada();
 				respPersonalizada.setMensajeRespuesta("�La factura se timbr� con �xito!");
 				respPersonalizada.setUuidFactura(timbreFD.getUUID());
+				System.out.println("mandar mail");
+				
+				EmailSender mailero = new EmailSender();
+				Imagen imagen = imagenDAO.get(cfdiTimbrado.getEmisor().getRfc());
+				
+				
+				try {
+					PdfWriter writer = f33service.obtenerPDF(facturaTimbrada, os);
+					if (email==null){
+						
+					}else{
+						mailero.enviarComplemento(email, facturaTimbrada,"", complemento.getAny().get(0).toString(),
+							imagen, writer);
+					}
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DocumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 				
 				RegistroBitacora br = new RegistroBitacora();
 				br.setEvento("Se timbr� el Complemento de pago");
