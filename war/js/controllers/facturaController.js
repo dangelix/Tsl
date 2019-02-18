@@ -703,7 +703,7 @@ app.controller("facturaEditController33",['serialService','conceptosService','co
 		serialService.findSeries($routeParams.rfc).then(function(data){
 			$scope.seriales=data;
 		});
-		for(var i=0; i< $scope.seriales.length; i++){
+		for(var i=0; i< $scope.seriales.length; i++){ 
 			if($scope.seriales[i].serie== $scope.comprobante.serie){
 				$scope.serialElegido= $scope.seriales[i];
 				break;
