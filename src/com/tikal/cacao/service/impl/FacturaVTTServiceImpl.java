@@ -585,6 +585,7 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 		this.redondearCantidades(comprobante);
 		this.agregarCerosATasaOCuota(comprobante.getImpuestos());
 		if (!auto) {
+			System.out.println("--------serial");
 			Serial s = serialDAO.consultar(comprobante.getEmisor().getRfc(), comprobante.getSerie());
 			comprobante.setFolio(s.getFolio() + "");
 		}
@@ -639,9 +640,9 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 					mailero.enviaFactura(email, facturaTimbrada, "", imagen, cfdiTimbrado);
 				}
 				respPersonalizada = new RespuestaWebServicePersonalizada();
-				respPersonalizada.setMensajeRespuesta("?La factura se timbró con éxito!");
+				respPersonalizada.setMensajeRespuesta("La factura se timbró con éxito!");
 				respPersonalizada.setUuidFactura(timbreFD.getUUID());
-				this.incrementarFolio(facturaTimbrada.getRfcEmisor(), cfdiTimbrado.getSerie());
+				//this.incrementarFolio(facturaTimbrada.getRfcEmisor(), cfdiTimbrado.getSerie());
 				return respPersonalizada;
 			} // FIN TIMBRADO EXITOSO
 

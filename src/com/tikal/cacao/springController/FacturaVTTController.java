@@ -118,7 +118,7 @@ public class FacturaVTTController {
 			if (ServicioSesion.verificarPermiso(req, usuarioDAO, perfilDAO, 11)) {
 				ComprobanteVO cVO = (ComprobanteVO) JsonConvertidor.fromJson(json, ComprobanteVO.class);
 				System.out.println("******");
-				String textoRespuesta = facturaVTTService.timbrar(cVO, req.getSession(), false, null, cVO.getNoOrden());
+				String textoRespuesta = facturaVTTService.timbrar(cVO, req.getSession(), true, null, cVO.getNoOrden());
 				res.setContentType("text/html");
 				res.getWriter().println(textoRespuesta);
 			} else {

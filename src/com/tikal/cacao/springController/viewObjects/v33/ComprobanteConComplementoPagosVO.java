@@ -16,6 +16,8 @@ public class ComprobanteConComplementoPagosVO {
 	private String email;
 
 	private Comprobante cfdi;
+	
+	private String noOrden;
 
 	public Pagos getComplementoPagos() {
 		return complementoPagos;
@@ -55,6 +57,14 @@ public class ComprobanteConComplementoPagosVO {
 
 	public void setCfdi(Comprobante cfdi) {
 		this.cfdi = cfdi;
+	}
+
+	public String getNoOrden() {
+		return noOrden;
+	}
+
+	public void setNoOrden(String noOrden) {
+		this.noOrden = noOrden;
 	}
 
 	

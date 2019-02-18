@@ -349,7 +349,8 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 		if (factura != null) {
 			Comprobante cfdi = Util.unmarshallCFDI33XML(factura.getCfdiXML());
 			Imagen imagen = imagenDAO.get(cfdi.getEmisor().getRfc());
-
+			String orden= factura.getNoOrden();
+			System.out.println("NO ORDEN:"+factura.getNoOrden());
 			PDFFacturaV33 pdfFactura;
 //			UsoDeCFDI usoCFDIHB = usoDeCFDIDAO.consultarPorId(cfdi.getReceptor().getUsoCFDI().getValor());
 			RegimenFiscal regimenFiscal = regimenFiscalDAO
