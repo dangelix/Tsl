@@ -673,10 +673,10 @@ app.controller("facturaEditController33",['serialService','conceptosService','co
 		})
 	}
 	$scope.cargarReceptores(); 
-	
 	conceptosService.cargaConceptos($routeParams.rfc).then(function(data){
 		$scope.conceptosEmp=data.conceptos;
 	});
+	$scope.serialElegido = {folio : null, serie : []}
 	serialService.findSeries($routeParams.rfc).then(function(data){
 		$scope.seriales=data;
 		comprobanteService33.getComprobanteGuardado($routeParams.uuid).then(function(data){
@@ -686,9 +686,11 @@ app.controller("facturaEditController33",['serialService','conceptosService','co
 			if($scope.impuestosLocales != null) {
 				$scope.mostrarImpLocales = true;
 			}
+			
 			for(var i=0; i< $scope.seriales.length; i++){
 				if($scope.seriales[i].serie== data.comprobante.serie){
 					$scope.serialElegido= $scope.seriales[i];
+					$scope.serialElegido.folio =  data.comprobante.folio * 1;
 					break;
 				}
 			}
@@ -697,6 +699,17 @@ app.controller("facturaEditController33",['serialService','conceptosService','co
 			$scope.noOrden= data.noOrden;
 		});
 	});
+	$scope.updateFolios = function(){
+		serialService.findSeries($routeParams.rfc).then(function(data){
+			$scope.seriales=data;
+		});
+		for(var i=0; i< $scope.seriales.length; i++){
+			if($scope.seriales[i].serie== $scope.comprobante.serie){
+				$scope.serialElegido= $scope.seriales[i];
+				break;
+			}
+		}
+	}
 	/*$scope.rfcReceptorChange = function(index) {
 		console.log(index);
 		console.log($scope.receptores);
