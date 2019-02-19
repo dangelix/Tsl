@@ -60,7 +60,8 @@ app.controller("complementoController",['serialService', 'comprobanteService33',
 			var send={cfdi:$scope.cfdiParaPago,
 //					email:$scope.comprobante.email,
 					complementoPagos:$scope.complementoPagos,
-					serie:$scope.serialElegido
+					serie:$scope.serialElegido,
+					noOrden:$scope.noOrden
 			}
 			comprobanteService33.timbrarComplementoM(send).then(function(data){
 				console.log(data);
