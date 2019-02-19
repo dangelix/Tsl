@@ -66,6 +66,7 @@ app.controller("complementoController",['serialService', 'comprobanteService33',
 			comprobanteService33.timbrarComplementoM(send).then(function(data){
 				console.log(data);
 				alert(data);
+				$location.path("/listComplementos");
 			})
 		}
 	}
