@@ -118,7 +118,7 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 				Util.randomString(14), xmlCFDIPago, comprobante.getEmisor().getRfc(),
 				comprobante.getReceptor().getNombre(), Util.xmlGregorianAFecha( comprobante.getFecha() ),
 				null, null, uuidRelacionado, Util.xmlGregorianAFecha( pago.getFechaPago() ).toString(),
-				pago.getFormaDePagoP().getValor(), pago.getMonedaP().getValor(), pago.getMonto().toPlainString());
+				pago.getFormaDePagoP().getValor(), pago.getMonedaP().getValor(), pago.getMonto().toPlainString(), comprobanteConComplementoPagos.getNoOrden());
 		
 		pagosFacturaVttDAO.guardar(pagosFacturaVTT);
 		return "El CFDI con complemento de pago ha sido generado";
@@ -235,12 +235,14 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 		int codigoRespuesta = -1;
 		if (respuestaWB.get(6) instanceof Integer) {
 			codigoRespuesta = (int) respuestaWB.get(6);
-		
+			System.out.println("uno");
 			if (codigoRespuesta == 0) {
+				System.out.println("dos");
 				bandera=true;
 				String xmlCFDITimbrado = (String) respuestaWB.get(3);
 				Comprobante cfdiTimbrado = Util.unmarshallCFDI33XML(xmlCFDITimbrado);
-				this.incrementarFolio(cfdiTimbrado.getEmisor().getRfc(), cfdiTimbrado.getSerie());
+				this.incrementarFolio(cfdiTimbrado.getEmisor().getRfc(), comprobanteConComplementoPagos.getSerie().getSerie());
+				System.out.println("serie::::"+comprobanteConComplementoPagos.getSerie().getSerie());
 				byte[] bytesQRCode = (byte[]) respuestaWB.get(4);
 				String selloDigital = (String) respuestaWB.get(5);
 				
@@ -259,7 +261,7 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 						cfdiTimbrado.getEmisor().getRfc(), cfdiTimbrado.getReceptor().getNombre(),
 						fechaCertificacion, selloDigital, bytesQRCode, 
 						uuidRelacionado, Util.xmlGregorianAFecha( pago.getFechaPago() ).toString(),
-						pago.getFormaDePagoP().getValor(), pago.getMonedaP().getValor(), pago.getMonto().toPlainString());
+						pago.getFormaDePagoP().getValor(), pago.getMonedaP().getValor(), pago.getMonto().toPlainString(), comprobanteConComplementoPagos.getNoOrden());
 				//facturaTimbrada.setComentarios(comentarios);
 				pagosFacturaVttDAO.guardar(facturaTimbrada);
 				
@@ -268,7 +270,7 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 				
 				
 				respPersonalizada = new RespuestaWebServicePersonalizada();
-				respPersonalizada.setMensajeRespuesta("�La factura se timbr� con �xito!");
+				respPersonalizada.setMensajeRespuesta("La factura se timbró con éxito!");
 				respPersonalizada.setUuidFactura(timbreFD.getUUID());
 				System.out.println("mandar mail");
 				
@@ -308,6 +310,7 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 			
 			// CASO DE ERROR EN EL TIMBRADO
 			else {
+				System.out.println("tres");
 				RespuestaWebServicePersonalizada respuesta=Util.construirMensajeError(respuestaWB);
 				RegistroBitacora br = new RegistroBitacora();
 				br.setEvento(respuesta.getMensajeRespuesta()+ "xml= "+ xmlCFDIPago);
@@ -317,7 +320,9 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 				bitacoradao.addReg(br);
 				return respuesta;
 			}
+			
 		} else {
+			System.out.println("cuatro");
 			RespuestaWebServicePersonalizada respuesta=Util.construirMensajeError(respuestaWB);
 			RegistroBitacora br = new RegistroBitacora();
 			br.setEvento(respuesta.getMensajeRespuesta()+ "xml= "+ xmlCFDIPago);

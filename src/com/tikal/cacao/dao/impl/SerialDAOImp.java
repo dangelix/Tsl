@@ -23,5 +23,17 @@ public class SerialDAOImp implements SerialDAO{
 	public List<Serial> consultar(String rfc) {
 		return ofy().load().type(Serial.class).filter("rfc",rfc).list();
 	}
+
+	@Override
+	public List<Serial> consultarE(String rfc, String serial) {
+		List<Serial> todos= ofy().load().type(Serial.class).filter("rfc",rfc).list();
+		for(Serial s:todos){
+			System.out.println("serie"+s.getSerie());
+			if(s.getSerie()==serial){
+				todos.remove(s);
+			}
+		}
+		return todos;
+	}
 	
 }

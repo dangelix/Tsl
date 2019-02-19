@@ -11,19 +11,20 @@ public class PagosFacturaVTT extends FacturaVTT {
 	public PagosFacturaVTT() {}
 
 	public PagosFacturaVTT(String uuid, String cfdi, String rfcEmisor, String nombreReceptor, Date fecha, String sello,
-			byte[] codigoQR) {
+			byte[] codigoQR, String noOrden) {
 		super(uuid, cfdi, rfcEmisor, nombreReceptor, fecha, sello, codigoQR, null);
 		
 	}
 	
 	public PagosFacturaVTT(String uuid, String cfdi, String rfcEmisor, String nombreReceptor, Date fecha, String sello,
-			byte[] codigoQR, String uuidRelacionado, String fechaPago, String formaDePago, String moneda, String monto) {
+			byte[] codigoQR, String uuidRelacionado, String fechaPago, String formaDePago, String moneda, String monto, String noOrden) {
 		super(uuid, cfdi, rfcEmisor, nombreReceptor, fecha, sello, codigoQR, null);
 		this.setUuidCFDIRelacionado(uuidRelacionado);
 		this.setFechaPago(fechaPago);
 		this.setFormaDePago(formaDePago);
 		this.setMoneda(moneda);
 		this.setMonto(monto);
+		this.setNoOrden(noOrden);
 		
 	}
 	
@@ -37,6 +38,18 @@ public class PagosFacturaVTT extends FacturaVTT {
 	private String moneda;
 	
 	private String monto;
+	
+	private String noOrden;
+	
+	
+
+	public String getNoOrden() {
+		return noOrden;
+	}
+
+	public void setNoOrden(String noOrden) {
+		this.noOrden = noOrden;
+	}
 
 	public String getUuidCFDIRelacionado() {
 		return uuidCFDIRelacionado;

@@ -16,6 +16,7 @@ import com.tikal.cacao.dao.SerialDAO;
 import com.tikal.cacao.model.Serial;
 import com.tikal.cacao.security.PerfilDAO;
 import com.tikal.cacao.security.UsuarioDAO;
+import com.tikal.cacao.service.FacturaVTTService;
 import com.tikal.cacao.util.AsignadorDeCharset;
 import com.tikal.cacao.util.JsonConvertidor;
 
@@ -31,6 +32,9 @@ public class SerialController {
 	
 	@Autowired
 	PerfilDAO perfildao;
+	
+	@Autowired
+	private FacturaVTTService facturaVTTService;
 
 	@RequestMapping(value = {
 			"/add" }, method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
@@ -52,6 +56,17 @@ public class SerialController {
 		}else {
 			res.sendError(403);
 		}
+	}
+	
+	@RequestMapping(value = { "getAllEdit/{rfc}/{serial}" }, method = RequestMethod.GET, produces = "application/json")
+	public void getedit(HttpServletRequest req, HttpServletResponse res, @PathVariable String rfc, @PathVariable String serial) throws IOException {
+		//if (ServicioSesion.verificarPermiso(req, usuariodao, perfildao, 14)||ServicioSesion.verificarPermiso(req, usuariodao, perfildao, 11)) {
+			AsignadorDeCharset.asignar(req, res);
+		
+			res.getWriter().println(JsonConvertidor.toJson(serialdao.consultar(rfc, serial)));
+//		}else {
+//			res.sendError(403);
+//		}
 	}
 
 	@RequestMapping(value = { "getAll/{rfc}/{serie}" }, method = RequestMethod.GET, produces = "application/json")
