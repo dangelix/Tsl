@@ -700,15 +700,21 @@ app.controller("facturaEditController33",['serialService','conceptosService','co
 		});
 	});
 	$scope.updateFolios = function(){
-		serialService.findSeries($routeParams.rfc).then(function(data){
-			$scope.seriales=data;
-		});
-		for(var i=0; i< $scope.seriales.length; i++){ 
-			if($scope.seriales[i].serie== $scope.comprobante.serie){
-				$scope.serialElegido= $scope.seriales[i];
-				break;
+		var r = confirm("ADVERTENCIA!!!\nAL DAR CLICK EN ACEPTAR SE OBTENDRAN NUEVOS FOLIOS\nSI DESEA MANTENER EL FOLIO ACTUAL PRECIONE CANCELAR");
+		if (r == true) {
+			serialService.findSeries($routeParams.rfc).then(function(data){
+				$scope.seriales=data;
+			});
+			for(var i=0; i< $scope.seriales.length; i++){ 
+				if($scope.seriales[i].serie== $scope.comprobante.serie){
+					$scope.serialElegido= $scope.seriales[i];
+					break;
+				}
 			}
+		} else {
+		  alert("OPERACION CANCELADA");
 		}
+		
 	}
 	/*$scope.rfcReceptorChange = function(index) {
 		console.log(index);
