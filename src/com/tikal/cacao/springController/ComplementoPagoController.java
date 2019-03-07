@@ -117,7 +117,7 @@ public class ComplementoPagoController {
 			ComprobanteConComplementoPagosVO cVO=(ComprobanteConComplementoPagosVO) JsonConvertidor.fromJson(json, ComprobanteConComplementoPagosVO.class);
 			
 			Comprobante c= this.nuevoComplemento(cVO.getCfdi());
-			System.out.println("forma de paago:"+c.getFormaPago());
+			System.out.println("serieFolio:"+c.getSerie()+c.getFolio());
 			Pagos complementoPagos= cVO.getComplementoPagos();
 			
 			Pago pago=complementoPagos.getPago().get(0);

@@ -162,6 +162,7 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 	@Override
 	public String generar(ComprobanteConComentarioVO comprobanteConComentario, HttpSession sesion) {
 		Comprobante c = comprobanteConComentario.getComprobante();
+		this.redondearCantidades(c);
 		String xmlComprobante = Util.marshallComprobante33(c, false);
 		//comprobanteConComentario.getNoOrden()
 		System.out.println("AQUI ENTRA.......");
@@ -186,6 +187,7 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 		RespuestaWebServicePersonalizada respWBPersonalizada = this.timbrar(comprobanteVO.getComprobante(),
 				comprobanteVO.getComentarios(), comprobanteVO.getEmail(), auto, extra, noOrden);
 		Comprobante c = comprobanteVO.getComprobante();
+		this.redondearCantidades(c);
 		
 		if (respWBPersonalizada.getUuidFactura() != null) {
 			if (sesion.getAttribute("userName") != null) {
@@ -206,6 +208,7 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 	@Override
 	public String actualizar(ComprobanteConComentarioVO comprobanteConComentario, String uuid, HttpSession sesion) {
 		Comprobante c = comprobanteConComentario.getComprobante();
+		this.redondearCantidades(c);
 		ReporteRenglon ren= repRenglonDAO.consultar(uuid);
 		
 		
@@ -236,6 +239,7 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 	@Override
 	public String actualizar33(Comprobante33VO comprobanteNew, String uuid, HttpSession sesion) {
 		Comprobante c = comprobanteNew.getComprobante();
+		this.redondearCantidades(c);
 		String xmlComprobante = Util.marshallComprobante33(c, false);
 		System.out.println("la orden lleva:"+comprobanteNew.getNoOrden());
 		FacturaVTT factura = new FacturaVTT(uuid, xmlComprobante, c.getEmisor().getRfc(), c.getReceptor().getNombre(),
@@ -257,6 +261,7 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 	public String timbrarCFDIGenerado(String uuid, String email, HttpSession sesion) {
 		FacturaVTT factura = facturaVTTDAO.consultar(uuid);
 		Comprobante comprobante = Util.unmarshallCFDI33XML(factura.getCfdiXML());
+		this.redondearCantidades(comprobante);
 		System.out.println("****************numero de orden:"+factura.getNoOrden());
 		RespuestaWebServicePersonalizada respWBPersonalizada = this.timbrar(comprobante, factura.getComentarios(),
 				email, true, null, factura.getNoOrden());
@@ -280,6 +285,7 @@ public class FacturaVTTServiceImpl implements FacturaVTTService {
 	@Override
 	public String timbrar(String json, String uuid, HttpSession sesion) {
 		ComprobanteVO cVO = (ComprobanteVO) JsonConvertidor.fromJson(json, ComprobanteVO.class);
+		
 		RespuestaWebServicePersonalizada respWBPersonalizada = this.timbrar(cVO.getComprobante(), cVO.getComentarios(),
 				cVO.getEmail(), false, null, cVO.getNoOrden());
 
