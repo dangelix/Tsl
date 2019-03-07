@@ -228,6 +228,7 @@ public class PagosFacturaVTTServiceImpl implements PagosFacturaVTTService {
 		Serial serial=serialDAO.consultar(comprobante.getEmisor().getRfc(), comprobanteConComplementoPagos.getSerie().getSerie());
 		System.out.println("serial:"+serial.getFolio());
 		comprobante.setFolio(serial.getFolio()+"");
+		comprobante.setSerie(comprobanteConComplementoPagos.getSerie().getSerie());
 		String xmlCFDIPago = Util.marshallComprobanteConPagos(comprobante);
 		TimbraCFDIResponse timbraCFDIResponse = wsClienteCFDI33.getTimbraCFDIResponse(xmlCFDIPago);
 		List<Object> respuestaWB = timbraCFDIResponse.getTimbraCFDIResult().getAnyType();
