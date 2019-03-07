@@ -50,9 +50,8 @@ app.controller("complementoController",['serialService', 'comprobanteService33',
 
 	$scope.enviarComprobante= function(){
 		var validado= $scope.validar();
-		if(validado){
-			alert("No se ha elegido una serie");
-			document.getElementById("serial").focus();
+		if(validado == false){
+			return
 		}else{
 			
 		
