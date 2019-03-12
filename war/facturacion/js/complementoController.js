@@ -65,6 +65,7 @@ app.controller("complementoController",['serialService', 'comprobanteService33',
 			comprobanteService33.timbrarComplementoM(send).then(function(data){
 				console.log(data);
 				alert(data);
+				if(data == "La factura se timbró con éxito!")
 				$location.path("/listComplementos");
 			})
 		}
