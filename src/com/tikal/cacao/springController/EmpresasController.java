@@ -113,7 +113,7 @@ public class EmpresasController {
 	@RequestMapping(value = { "/find/{rfc}" }, method = RequestMethod.GET, produces = "application/json")
 	public void findEmpresa(HttpServletResponse response, HttpServletRequest request, @PathVariable String rfc)
 			throws IOException {
-		if (ServicioSesion.verificarPermiso(request, usuariodao, perfildao, 0)) {
+	//	if (ServicioSesion.verificarPermiso(request, usuariodao, perfildao, 0)) {
 		AsignadorDeCharset.asignar(request, response);
 		Empresa e = empresasdao.consultar(rfc);
 		List<Regimen> lista = e.getRegimenes();
@@ -139,7 +139,7 @@ public class EmpresasController {
 		res[0] = new EmpresaVO(e);
 		res[1] = listaAlertas;
 		response.getWriter().println(JsonConvertidor.toJson(res));
-		}
+		//}
 	}
 
 	@RequestMapping(value = {
@@ -231,7 +231,7 @@ public class EmpresasController {
 		}
 	}
 
-	/*private void llenarCatálogos(String rfc) {
+	/*private void llenarCatï¿½logos(String rfc) {
 		List<EntTipoPercepcion> listSATPer = tPercepcionesDAO.consultarTodos(EntTipoPercepcion.class);
 		List<ContabilidadPropiaTipoPercepcion> listContPropiaPer = new ArrayList<>();
 		CatalogosContabilidadPropia<EntTipoPercepcion> cpTipoPer = null;
